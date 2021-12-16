@@ -5,7 +5,7 @@ from os import path
 father_path = path.dirname(__file__)
 sys.path.append(str(father_path))
 
-module = __import__("object")
+module = __import__("objects")
 
 def create_scenario(scenario_name):
     file_path = os.path.join(os.path.dirname(__file__), 'scenario.json')
