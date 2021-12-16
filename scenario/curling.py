@@ -1,5 +1,5 @@
-from OlympicsEnv.olympics.core import OlympicsBase
-from OlympicsEnv.olympics.viewer import Viewer
+from olympics_engine.core import OlympicsBase
+from olympics_engine.viewer import Viewer
 
 import math
 

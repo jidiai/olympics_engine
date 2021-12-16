@@ -1,5 +1,4 @@
-from OlympicsEnv.olympics.core import OlympicsBase
-from OlympicsEnv.olympics.viewer import debug
+from olympics_engine.core import OlympicsBase
 import pygame
 import sys
 import math
@@ -48,7 +47,7 @@ class wrestling(OlympicsBase):
         obs_next = self.get_obs()
         # obs_next = 1
         done = self.is_terminal()
-
+        self.change_inner_state()
         #check overlapping
         #self.check_overlap()
 

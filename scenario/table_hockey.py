@@ -1,5 +1,5 @@
-from OlympicsEnv.olympics.core import OlympicsBase
-from OlympicsEnv.olympics.viewer import debug
+from olympics_engine.core import OlympicsBase
+from olympics_engine.viewer import debug
 import pygame
 import sys
 import random

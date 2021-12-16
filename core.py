@@ -1119,6 +1119,9 @@ class OlympicsBase(object):
     def change_inner_state(self):
 
         for agent_idx in range(self.agent_num):
+            if self.agent_list[agent_idx].type == 'ball':
+                continue
+
             if self.agent_list[agent_idx].energy < 0:       #once fatigue, the agent died and lose control
                 remaining_energy = -1
             else:

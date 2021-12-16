@@ -1,5 +1,6 @@
-from OlympicsEnv.olympics.core import OlympicsBase
-from OlympicsEnv.olympics.viewer import debug
+from olympics_engine.core import OlympicsBase
+from olympics_engine.core import debug
+
 import pygame
 import sys
 
@@ -48,7 +49,7 @@ class football(OlympicsBase):
         obs_next = self.get_obs()              #need to add agent or ball check in get_obs
 
         done = self.is_terminal()
-
+        self.change_inner_state()
         #check overlapping
         #self.check_overlap()
 
