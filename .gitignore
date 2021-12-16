@@ -1,6 +1,5 @@
 # Default ignored files
-.idea*
-*/__pycache__/*
-*/*/__pycache__/*
+.__pycache__/*
+scenario/__pycache__/*
 test/.pytest_cache/
 
