@@ -2,9 +2,9 @@ import sys
 from pathlib import Path
 base_path = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.append(base_path)
-from OlympicsEnv.olympics.generator import create_scenario
+from olympics_engine.generator import create_scenario
 import argparse
-from OlympicsEnv.olympics.agent import *
+from olympics_engine.agent import *
 import time
 from scenario.running import *
 from scenario.table_hockey import *
@@ -42,10 +42,7 @@ if __name__ == "__main__":
     for i in range(20):
         Gamemap = create_scenario(args.map)
         #game = table_hockey(Gamemap)
-        if args.map == 'running':
-            game = Running(Gamemap)
-            agent_num = 2
-        elif args.map == 'table-hockey':
+        if args.map == 'table-hockey':
             game = table_hockey(Gamemap)
             agent_num = 2
         elif args.map == 'football':
