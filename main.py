@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
-base_path = str(Path(__file__).resolve().parent.parent.parent)
+base_path = str(Path(__file__).resolve().parent.parent)
 sys.path.append(base_path)
+print(sys.path)
 from olympics_engine.generator import create_scenario
 import argparse
 from olympics_engine.agent import *
@@ -34,7 +35,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="table-hockey", type= str,
+    parser.add_argument('--map', default="billiard", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
@@ -82,7 +83,7 @@ if __name__ == "__main__":
             #action1 = [100,0]#agent.act(obs)
             #action2 = [100,0] #rand_agent.act(obs)
             action1, action2 = agent.act(obs), rand_agent.act(obs)
-            action = [action1, action2] if (agent_num == 2) else [[100,0]]
+            action = [action1, action2] if (agent_num == 2) else [action1]
 
             obs, reward, done, _ = game.step(action)
             # plt.imshow(obs[0])
@@ -92,7 +93,7 @@ if __name__ == "__main__":
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
-        print('reward =', reward)
+        print('reward =', game.total_reward)
         # if R:
         #     store(record,'bug1')
 

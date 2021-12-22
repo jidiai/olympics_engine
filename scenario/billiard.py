@@ -13,7 +13,8 @@ class billiard(OlympicsBase):
         super(billiard, self).__init__(map)
 
         self.gamma = 0.99  # v衰减系数
-        self.restitution = 1
+        self.wall_restitution = 0.8
+        self.circle_restitution = 0.8
         self.print_log = False
         self.tau = 0.1
 
@@ -21,9 +22,11 @@ class billiard(OlympicsBase):
         self.show_traj = False
 
         self.dead_agent_list = []
-        self.max_step = 1000
-        self.num_ball = len(self.agent_list)
+        self.max_step = 500
+        self.original_num_ball = len(self.agent_list)
         self.white_ball_in = False
+
+        self.total_reward = 0
 
     def check_overlap(self):
         pass
@@ -52,10 +55,9 @@ class billiard(OlympicsBase):
         done = self.is_terminal()
         self.step_cnt += 1
         step_reward = self.get_reward()
+        self.total_reward += step_reward[0]
         obs_next = self.get_obs()
-        # obs_next = 1
-        print('agent num', self.agent_num)
-        print('num ball', self.num_ball)
+
         self.clear_agent()
         #check overlapping
         #self.check_overlap()
@@ -118,13 +120,13 @@ class billiard(OlympicsBase):
 
     def get_reward(self):
         if len(self.agent_list) == 1 and not self.white_ball_in:
-            return [100.]
+            return [500.]
 
-        reward = [0]
+        reward = [-0.1]
         if not self.white_ball_in:
-            reward[0] += (self.num_ball - self.agent_num)*10
+            reward[0] += len(self.dead_agent_list)*100
         else:
-            reward[0] -= 100
+            reward[0] -= 50
 
         return reward
 
@@ -174,7 +176,7 @@ class billiard(OlympicsBase):
         if info is not None:
             debug(info, x=100)
 
-        debug("-----------SCORE: {}".format(self.num_ball-self.agent_num), x = 100)
+        debug("-----------SCORE: {}".format(self.original_num_ball-self.agent_num), x = 100)
 
 
         for event in pygame.event.get():
