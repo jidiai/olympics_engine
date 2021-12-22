@@ -151,8 +151,8 @@ class OlympicsBase(object):
         # env hyper
         self.tau = 0.1  # delta t
         self.gamma = 0.98  # v衰减系数
-        self.wall_restitution = 0.8
-        self.circle_restitution = 0.8
+        self.wall_restitution = 0.5
+        self.circle_restitution = 0.5
 
         self.step_cnt = 0
         self.done = False

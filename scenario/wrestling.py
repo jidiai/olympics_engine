@@ -11,7 +11,8 @@ class wrestling(OlympicsBase):
         super(wrestling, self).__init__(map)
 
         self.gamma = 1  # v衰减系数
-        self.restitution = 1
+        self.wall_restitution = 1
+        self.circle_restitution = 1
         self.print_log = False
         self.tau = 0.1
 
