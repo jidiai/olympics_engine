@@ -58,6 +58,8 @@ class billiard(OlympicsBase):
         self.total_reward += step_reward[0]
         obs_next = self.get_obs()
 
+        self.change_inner_state()
+
         self.clear_agent()
         #check overlapping
         #self.check_overlap()
