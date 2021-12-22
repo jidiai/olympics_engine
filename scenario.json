@@ -799,8 +799,8 @@
         },
         "component2": {
           "initial_position": [
-            530,
-            400
+            525,
+            393
           ],
           "mass": 1,
           "radius": 15,
@@ -808,8 +808,8 @@
         },
         "component3": {
           "initial_position": [
-            530,
-            350
+            525,
+            358
           ],
           "mass": 1,
           "radius": 15,
@@ -817,8 +817,8 @@
         },
         "component4": {
           "initial_position": [
-            560,
-            325
+            550,
+            340
           ],
           "mass": 1,
           "radius": 15,
@@ -826,8 +826,8 @@
         },
         "component5": {
           "initial_position": [
-            560,
-            425
+            550,
+            410
           ],
           "mass": 1,
           "radius": 15,
@@ -835,26 +835,8 @@
         },
         "component6": {
           "initial_position": [
-            560,
+            550,
             375
-          ],
-          "mass": 1,
-          "radius": 15,
-          "color": "sky blue"
-        },
-        "component7": {
-          "initial_position": [
-            610,
-            520
-          ],
-          "mass": 1,
-          "radius": 15,
-          "color": "sky blue"
-        },
-        "component8": {
-          "initial_position": [
-            610,
-            220
           ],
           "mass": 1,
           "radius": 15,
