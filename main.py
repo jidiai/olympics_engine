@@ -93,7 +93,10 @@ if __name__ == "__main__":
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
-        print('reward =', game.total_reward)
+        if args.map == 'billiard':
+            print('reward =', game.total_reward)
+        else:
+            print('reward = ', reward)
         # if R:
         #     store(record,'bug1')
 
