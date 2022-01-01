@@ -60,7 +60,7 @@ if __name__ == "__main__":
             agent_num = 1
         elif args.map == 'curling':
             game = curling(Gamemap)
-            agent_num = 1
+            agent_num = 2
 
         game.reset()
 

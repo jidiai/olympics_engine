@@ -136,6 +136,9 @@ class Viewer():
         coord = [580 + 70 * i for i in range(len(obs))]
         for agent_idx in range(len(obs)):
             matrix = obs[agent_idx]
+            if matrix is None:
+                continue
+
             obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
             y = 30 - obs_height
             for row in matrix:

@@ -1022,7 +1022,7 @@ class OlympicsBase(object):
             map_deduced["agents"] = list()
 
             # 当前agent自己
-            agent_self = self.map["agents"][agent_idx]
+            agent_self = self.agent_list[agent_idx]
             agent_self.to_another_agent = []
             agent_self.to_another_agent_rotated = []
             temp_idx = 0
