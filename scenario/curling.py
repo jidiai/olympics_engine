@@ -65,6 +65,8 @@ class curling(OlympicsBase):
         self.round_max_step = 100
         self.round_step = 0
 
+        self.stop_threshold = 1e-2
+
     def reset(self):
         self.init_state()
         self.step_cnt = 0
@@ -216,9 +218,9 @@ class curling(OlympicsBase):
             step_reward = [100., 0] if self.final_winner == 0 else [0., 100]
 
         if self.current_team == 0:
-            obs_next = [obs_next, np.zeros_like(obs_next)-1]
+            obs_next = [obs_next[0], np.zeros_like(obs_next[0])-1]
         else:
-            obs_next = [np.zeros_like(obs_next)-1, obs_next]
+            obs_next = [np.zeros_like(obs_next[0])-1, obs_next[0]]
 
 
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
@@ -252,7 +254,7 @@ class curling(OlympicsBase):
             if self.release:
                 L = []
                 for agent_idx in range(self.agent_num):
-                    if (self.agent_v[agent_idx][0] ** 2 + self.agent_v[agent_idx][1] ** 2) < 1e-1:
+                    if (self.agent_v[agent_idx][0] ** 2 + self.agent_v[agent_idx][1] ** 2) < self.stop_threshold:
                         L.append(True)
                     else:
                         L.append(False)
@@ -274,7 +276,7 @@ class curling(OlympicsBase):
         L = []
         for agent_idx in range(self.agent_num):
             if (not self.agent_list[agent_idx].alive) and (self.agent_v[agent_idx][0] ** 2 +
-                                                           self.agent_v[agent_idx][1] ** 2) < 1e-1:
+                                                           self.agent_v[agent_idx][1] ** 2) < self.stop_threshold:
                 L.append(True)
             else:
                 L.append(False)
@@ -320,10 +322,30 @@ class curling(OlympicsBase):
 
             if self.current_team == 0:
                 self.viewer.draw_view(self.obs_list, [self.agent_list[-1]])
-                debug('Agent 0', x=570, y=110)
             else:
                 self.viewer.draw_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
-                debug('Agent 1', x=640, y=110)
+
+        debug('Agent 0', x=570, y=110)
+        debug("No. throws left: ", x=470, y=140)
+        debug("{}".format(self.max_n - self.num_purple), x=590, y=140)
+        debug('Agent 1', x=640, y=110)
+        debug("{}".format(self.max_n - self.num_green), x=660, y=140)
+        debug("Current winner:", x=470, y=170)
+
+        if self.temp_winner == 0:
+            debug("*", x=590, y=170)
+        elif self.temp_winner == 1:
+            debug("*", x=660, y=170)
+        else:
+            pass
+
+        pygame.draw.line(self.viewer.background, start_pos=[470, 130], end_pos=[690, 130], color=[0, 0, 0])
+        pygame.draw.line(self.viewer.background, start_pos=[565, 100], end_pos=[565, 190], color=[0, 0, 0])
+        pygame.draw.line(self.viewer.background, start_pos=[630, 100], end_pos=[630, 190], color=[0, 0, 0])
+        pygame.draw.line(self.viewer.background, start_pos=[470, 160], end_pos=[690, 160], color=[0, 0, 0])
+
+
+
 
         #draw energy bar
         #debug('agent remaining energy = {}'.format([i.energy for i in self.agent_list]), x=100)
