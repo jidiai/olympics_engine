@@ -45,8 +45,6 @@ class curling(OlympicsBase):
     def __init__(self, map):
         super(curling, self).__init__(map)
 
-        self.release = False
-        self.gamma = 0.98
         self.wall_restitution = 1
         self.circle_restitution = 1
         self.print_log = False
@@ -58,22 +56,33 @@ class curling(OlympicsBase):
         self.start_pos = [300,150]
         self.start_init_obs = 90
 
-        self.num_purple = 1
-        self.num_green = 0
         self.max_n = 3
-        self.temp_winner = -1
         self.round_max_step = 100
-        self.round_step = 0
-
         self.stop_threshold = 1e-2
 
     def reset(self):
+        self.temp_winner = -1
+        self.round_step = 0
+        self.num_purple = 1
+        self.num_green = 0
+
+        self.agent_num = 0
+        self.agent_list = []
+        self.agent_init_pos = []
+        self.agent_pos = []
+        self.agent_previous_pos = []
+        self.agent_v = []
+        self.agent_accel = []
+        self.agent_theta = []
+        self.obs_boundary_init = list()
+        self.obs_boundary = self.obs_boundary_init
+        self.generate_map(self.map)
+        self.merge_map()
+
         self.init_state()
         self.step_cnt = 0
         self.done = False
         self.release = False
-
-        self.gamma = 0.98  # for longjump env
 
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False

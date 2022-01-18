@@ -62,8 +62,6 @@ if __name__ == "__main__":
             game = curling(Gamemap)
             agent_num = 2
 
-        game.reset()
-
         agent = random_agent()
         rand_agent = random_agent()
 

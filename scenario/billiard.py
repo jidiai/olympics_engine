@@ -1,5 +1,5 @@
 from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import debug
+from olympics_engine.viewer import Viewer, debug
 import pygame
 import sys
 import math
@@ -27,6 +27,35 @@ class billiard(OlympicsBase):
         self.white_ball_in = False
 
         self.total_reward = 0
+
+    def reset(self):
+        self.agent_num = 0
+        self.agent_list = []
+        self.agent_init_pos = []
+        self.agent_pos = []
+        self.agent_previous_pos = []
+        self.agent_v = []
+        self.agent_accel = []
+        self.agent_theta = []
+        self.obs_boundary_init = list()
+        self.obs_boundary = self.obs_boundary_init
+
+        self.generate_map(self.map)
+        self.merge_map()
+
+        self.set_seed()
+        self.init_state()
+        self.step_cnt = 0
+        self.done = False
+
+        self.viewer = Viewer(self.view_setting)
+        self.display_mode=False
+
+        self.white_ball_in = False
+        self.dead_agent_list = []
+        self.total_reward = 0
+
+        return self.get_obs()
 
     def check_overlap(self):
         pass
