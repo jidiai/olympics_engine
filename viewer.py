@@ -159,9 +159,10 @@ class Viewer():
 
 pygame.init()
 font = pygame.font.Font(None, 18)
-def debug(info, y = 10, x=10):
+def debug(info, y = 10, x=10, c='black'):
     display_surf = pygame.display.get_surface()
-    debug_surf = font.render(str(info), True, (0,0,0))
+    debug_surf = font.render(str(info), True, COLORS[c])
     debug_rect = debug_surf.get_rect(topleft = (x,y))
     display_surf.blit(debug_surf, debug_rect)
+
 
