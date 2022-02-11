@@ -9,6 +9,7 @@ import math
 import pygame
 import sys
 import os
+import random
 
 # color 宏
 COLORS = {
@@ -112,7 +113,9 @@ class curling(OlympicsBase):
 
     def reset(self):
         self.release = False
-        self.gamma = 0.98
+        self.top_area_gamma = 0.98
+        self.down_area_gamma = 0.95
+        self.gamma = self.top_area_gamma
 
         self.num_purple = 1
         self.num_green = 0
@@ -189,7 +192,7 @@ class curling(OlympicsBase):
         self.agent_record.append([self.agent_init_pos[-1]])
 
         self.release = False
-        self.gamma = 0.98
+        self.gamma = self.top_area_gamma
 
         self.round_step = 0
 
@@ -221,7 +224,7 @@ class curling(OlympicsBase):
                         # print('agent type = ', agent.type)
                         agent.alive = False
                         #agent.color = 'red'
-                        self.gamma = 0.95            #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+                        self.gamma = self.down_area_gamma             #this will change the gamma for the whole env, so need to change if dealing with multi-agent
                         self.release = True
                         self.round_countdown = self.round_max_step-self.round_step
                     # if the ball hasnot pass the cross, the relase will be True again in the new round
@@ -293,6 +296,8 @@ class curling(OlympicsBase):
 
         else:
             self.final_winner, min_d = self.current_winner()
+            self.temp_winner = self.final_winner
+
             step_reward = [100., 0] if self.final_winner == 0 else [0., 100]
             self.view_terminal = True
 
@@ -301,6 +306,9 @@ class curling(OlympicsBase):
         else:
             obs_next = [np.zeros_like(obs_next)-1, obs_next]
 
+        if self.release:
+            h_gamma = self.down_area_gamma + random.uniform(-1, 1)*0.001
+            self.gamma = h_gamma
 
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
         return obs_next, step_reward, done, ''
