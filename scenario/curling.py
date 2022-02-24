@@ -200,7 +200,7 @@ class curling(OlympicsBase):
 
         self.agent_list.append(new_agent)
         self.agent_init_pos[-1] = self.start_pos
-        new_boundary = self.get_obs_boundaray(self.start_pos, 15, 300)
+        new_boundary = self.get_obs_boundaray(self.start_pos, 15, self.vis)
         self.obs_boundary_init.append(new_boundary)
         self.agent_num += 1
 
