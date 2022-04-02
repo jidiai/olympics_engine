@@ -1,4 +1,192 @@
 {
+  "running": {
+    "wall": {
+      "num": 3,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            [
+              50,
+              300.0
+            ],
+            [
+              650,
+              300.0
+            ]
+          ],
+          "color": "black"
+        },
+        "component2": {
+          "initial_position": [
+            [
+              50,
+              400.0
+            ],
+            [
+              650,
+              400.0
+            ]
+          ],
+          "color": "black"
+        },
+        "component3": {
+          "initial_position": [
+            [
+              50,
+              300.0
+            ],
+            [
+              50,
+              400.0
+            ]
+          ],
+          "color": "black"
+        }
+      }
+    },
+    "arc": {
+      "num": 0,
+      "objects": {}
+    },
+    "cross": {
+      "num": 13,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            [
+              650,
+              300.0
+            ],
+            [
+              650,
+              400.0
+            ]
+          ],
+          "length": 100.0,
+          "color": "red"
+        },
+
+        "component4": {
+          "initial_position": [
+            [
+              100.0,
+              325.0
+            ],
+            [
+              125.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        },
+        "component5": {
+          "initial_position": [
+            [
+              100.0,
+              375.0
+            ],
+            [
+              125.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        },
+
+        "component8": {
+          "initial_position": [
+            [
+              300.0,
+              325.0
+            ],
+            [
+              325.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        },
+        "component9": {
+          "initial_position": [
+            [
+              300.0,
+              375.0
+            ],
+            [
+              325.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        },
+
+        "component12": {
+          "initial_position": [
+            [
+              500.0,
+              325.0
+            ],
+            [
+              525.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        },
+        "component13": {
+          "initial_position": [
+            [
+              500.0,
+              375.0
+            ],
+            [
+              525.0,
+              350.0
+            ]
+          ],
+          "length": 35.35533905932738,
+          "color": "grey"
+        }
+      }
+    },
+    "agent": {
+      "num": 2,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            75.0,
+            325.0
+          ],
+          "mass": 1,
+          "radius": 12.5,
+          "color": "purple",
+          "vis": 200,
+          "vis_clear": 5
+        },
+        "component2": {
+          "initial_position": [
+            75.0,
+            375.0
+          ],
+          "mass": 1,
+          "radius": 12.5,
+          "color": "green",
+          "vis": 200,
+          "vis_clear": 5
+        }
+      }
+    },
+    "view": {
+      "width": 600,
+      "height": 600,
+      "edge": 50
+    }
+  },
   "table-hockey": {
     "wall": {
       "num": 5,
@@ -23,7 +211,7 @@
               200
             ],
             [
-              780,
+              680,
               200
             ]
           ],
@@ -32,11 +220,11 @@
         "component3": {
           "initial_position": [
             [
-              780,
+              680,
               200
             ],
             [
-              780,
+              680,
               600
             ]
           ],
@@ -49,7 +237,7 @@
               600
             ],
             [
-              780,
+              680,
               600
             ]
           ],
@@ -58,11 +246,11 @@
         "component5": {
           "initial_position": [
             [
-              400,
+              350,
               200
             ],
             [
-              400,
+              350,
               600
             ]
           ],
@@ -77,11 +265,11 @@
         "component1": {
           "initial_position": [
             [
-              765,
+              665,
               350
             ],
             [
-              765,
+              665,
               450
             ]
           ],
@@ -111,17 +299,21 @@
             400
           ],
           "mass": 1,
-          "radius": 30,
-          "color": "purple"
+          "radius": 20,
+          "color": "purple",
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
-            720,
+            620,
             400
           ],
           "mass": 1,
-          "radius": 30,
-          "color": "green"
+          "radius": 20,
+          "color": "green",
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -130,7 +322,7 @@
       "objects": {
         "component1": {
           "initial_position": [
-            400,
+            350,
             400
           ],
           "mass": 0.1,
@@ -140,8 +332,8 @@
       }
     },
     "view": {
-      "width": 700,
-      "height": 700,
+      "width": 600,
+      "height": 600,
       "edge": 50,
       "init_obs" : [0, 180, 0]
     }
@@ -183,7 +375,7 @@
               200
             ],
             [
-              750,
+              650,
               200
             ]
           ],
@@ -192,11 +384,11 @@
         "component4": {
           "initial_position": [
             [
-              750,
+              650,
               200
             ],
             [
-              750,
+              650,
               350
             ]
           ],
@@ -205,11 +397,11 @@
         "component5": {
           "initial_position": [
             [
-              750,
+              650,
               450
             ],
             [
-              750,
+              650,
               600
             ]
           ],
@@ -222,7 +414,7 @@
               600
             ],
             [
-              750,
+              650,
               600
             ]
           ],
@@ -270,11 +462,11 @@
         "component10": {
           "initial_position": [
             [
-              750,
+              650,
               350
             ],
             [
-              795,
+              695,
               350
             ]
           ],
@@ -283,11 +475,11 @@
         "component11": {
           "initial_position": [
             [
-              750,
+              650,
               450
             ],
             [
-              795,
+              695,
               450
             ]
           ],
@@ -296,11 +488,11 @@
         "component12": {
           "initial_position": [
             [
-              795,
+              695,
               350
             ],
             [
-              795,
+              695,
               450
             ]
           ],
@@ -314,11 +506,11 @@
         "component1": {
           "initial_position": [
             [
-              750,
+              650,
               350
             ],
             [
-              750,
+              650,
               450
             ]
           ],
@@ -384,11 +576,11 @@
         "component6": {
           "initial_position": [
             [
-              550,
+              450,
               530
             ],
             [
-              550,
+              450,
               270
             ]
           ],
@@ -398,11 +590,11 @@
         "component7": {
           "initial_position": [
             [
-              550,
+              450,
               530
             ],
             [
-              750,
+              650,
               530
             ]
           ],
@@ -412,11 +604,11 @@
         "component8": {
           "initial_position": [
             [
-              550,
+              450,
               270
             ],
             [
-              750,
+              650,
               270
             ]
           ],
@@ -434,17 +626,21 @@
             400
           ],
           "mass": 1,
-          "radius": 30,
-          "color": "purple"
+          "radius": 20,
+          "color": "purple",
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
-            720,
+            620,
             400
           ],
           "mass": 1,
-          "radius": 30,
-          "color": "green"
+          "radius": 20,
+          "color": "green",
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -453,7 +649,7 @@
       "objects": {
         "component1": {
           "initial_position": [
-            400,
+            350,
             400
           ],
           "mass": 0.1,
@@ -463,8 +659,8 @@
       }
     },
     "view": {
-      "width": 700,
-      "height": 700,
+      "width": 600,
+      "height": 600,
       "edge": 50,
       "init_obs" : [0, 180, 0]
     }
@@ -548,7 +744,7 @@
           "radius": 20,
           "color": "purple",
           "vis": 200,
-          "vis_clear": 8
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -559,7 +755,7 @@
           "radius": 20,
           "color": "green",
           "vis": 200,
-          "vis_clear": 8
+          "vis_clear": 5
         }
       }
     },
@@ -781,7 +977,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -1004,8 +1202,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 300,
-          "vis_clear": 10
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },

@@ -1,6 +1,5 @@
 from olympics_engine.core import OlympicsBase
-from olympics_engine.core import debug
-
+from olympics_engine.viewer import Viewer, debug
 import pygame
 import sys
 
@@ -18,10 +17,29 @@ class football(OlympicsBase):
         self.draw_obs = True
         self.show_traj = False
 
-        self.speed_cap = 200
+        self.speed_cap = 100
 
     def check_overlap(self):
         pass
+
+
+    def reset(self):
+        self.set_seed()
+        self.init_state()
+        self.step_cnt = 0
+        self.done = False
+
+        self.viewer = Viewer(self.view_setting)
+        self.display_mode=False
+
+        self.minimap_mode = True
+
+        init_obs = self.get_obs()
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_init_obs = self._build_from_raw_obs(init_obs)
+        return output_init_obs
 
     def check_action(self, action_list):
         action = []
@@ -43,18 +61,44 @@ class football(OlympicsBase):
         self.step_cnt += 1
         self.cross_detect()
 
-
-
         step_reward = self.get_reward()
         obs_next = self.get_obs()              #need to add agent or ball check in get_obs
 
         done = self.is_terminal()
         self.change_inner_state()
-        #check overlapping
-        #self.check_overlap()
 
-        #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
-        return obs_next, step_reward, done, ''
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_obs_next = self._build_from_raw_obs(obs_next)
+
+        return output_obs_next, step_reward, done, ''
+
+    def _build_from_raw_obs(self, obs):
+        if self.minimap_mode:
+            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+            return [{"agent_obs": obs[0], "minimap":image, "id":"team_0"},
+                    {"agent_obs": obs[1], "minimap": image, "id":"team_1"}]
+        else:
+            return [{"agent_obs":obs[0], "id":"team_0"}, {"agent_obs": obs[1], "id":"team_1"}]
+
+    def _build_minimap(self):
+        #need to render first
+        if not self.display_mode:
+            self.viewer.set_mode()
+            self.display_mode = True
+
+        self.viewer.draw_background()
+        for w in self.map['objects']:
+            self.viewer.draw_map(w)
+
+        self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+        if self.draw_obs:
+            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+
+
 
     def cross_detect(self):
         """
@@ -89,26 +133,10 @@ class football(OlympicsBase):
                 ball_end_pos = self.agent_pos[agent_idx]
 
         if ball_end_pos is not None and ball_end_pos[0] < 400:
-            # if self.agent_pos[0][0] < 400:
-            #     return [0.,100.]
-            # else:
-            #     return [100., 0.]
-            # if self.agent_init_pos[0][0] < 400:
-            #     return [0., 100]
-            # else:
-            #     return [100., 0]
             return [0., 100]
 
         elif ball_end_pos is not None and ball_end_pos[0] > 400:
             return [100., 0]
-            # if self.agent_pos[0][0] < 400:
-            #     return [100. ,0.]
-            # else:
-            #     return [0., 100.]
-            # if self.agent_init_pos[0][0] < 400:
-            #     return [100., 0]
-            # else:
-            #     return [0., 100]
         else:
             return [0. ,0.]
 
@@ -129,39 +157,36 @@ class football(OlympicsBase):
 
     def render(self, info=None):
 
-        if not self.display_mode:
-            self.viewer.set_mode()
-            self.display_mode=True
+        if self.minimap_mode:
+            pass
+        else:
 
-        self.viewer.draw_background()
-        # 先画map; ball在map之上
-        for w in self.map['objects']:
-            self.viewer.draw_map(w)
+            if not self.display_mode:
+                self.viewer.set_mode()
+                self.display_mode=True
 
-        self.viewer.draw_ball(self.agent_pos, self.agent_list)
+            self.viewer.draw_background()
+            for w in self.map['objects']:
+                self.viewer.draw_map(w)
+
+            self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+        if self.draw_obs:
+            if len(self.obs_list) > 0:
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
+
         if self.show_traj:
             self.get_trajectory()
             self.viewer.draw_trajectory(self.agent_record, self.agent_list)
+
         self.viewer.draw_direction(self.agent_pos, self.agent_accel)
-        #self.viewer.draw_map()
 
-        if self.draw_obs:
-            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
-            self.viewer.draw_view(self.obs_list, self.agent_list)
-
-        #draw energy bar
-        #debug('agent remaining energy = {}'.format([i.energy for i in self.agent_list]), x=100)
-        self.viewer.draw_energy_bar(self.agent_list, height=130)
-        debug('Agent 0', x=570, y=140)
-        debug('Agent 1', x=640, y=140)
-        if self.map_num is not None:
-            debug('Map {}'.format(self.map_num), x=100)
-
-        # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
         debug('Step: ' + str(self.step_cnt), x=30)
         if info is not None:
             debug(info, x=100)
-
 
         for event in pygame.event.get():
             # 如果单击关闭窗口，则退出

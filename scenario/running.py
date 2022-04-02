@@ -1,5 +1,8 @@
 from olympics_engine.core import OlympicsBase
+from olympics_engine.viewer import Viewer, debug
 import time
+import pygame
+import sys
 
 class Running(OlympicsBase):
     def __init__(self, map, seed = None):
@@ -17,6 +20,31 @@ class Running(OlympicsBase):
         self.show_traj = True
 
         #self.is_render = True
+
+    def reset(self):
+        self.set_seed()
+        self.init_state()
+        self.step_cnt = 0
+        self.done = False
+
+        self.viewer = Viewer(self.view_setting)
+        self.display_mode=False
+
+        self.minimap_mode = False
+
+        init_obs = self.get_obs()
+
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_init_obs = self._build_from_raw_obs(init_obs)
+        return output_init_obs
+            # image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+
+            # return [{"agent_obs": init_obs[0], "minimap":image}, {"agent_obs": init_obs[1], "minimap":image}]
+
+
+        # return [{'agent_obs':init_obs[0]}, {'agent_obs':init_obs[1]}]
 
     def check_overlap(self):
         #todo
@@ -62,13 +90,90 @@ class Running(OlympicsBase):
         step_reward = self.get_reward()
         done = self.is_terminal()
 
-        time3 = time.time()
         obs_next = self.get_obs()
-        time4 = time.time()
-        #print('render time = ', time4-time3)
-        # obs_next = 1
         #self.check_overlap()
         self.change_inner_state()
 
-        return obs_next, step_reward, done, ''
+
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_obs_next = self._build_from_raw_obs(obs_next)
+
+
+        return output_obs_next, step_reward, done, ''
+
+    def _build_from_raw_obs(self, obs):
+        if self.minimap_mode:
+            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+            return [{"agent_obs": obs[0], "minimap":image, "id":"team_0"},
+                    {"agent_obs": obs[1], "minimap": image, "id":"team_1"}]
+        else:
+            return [{"agent_obs":obs[0], "id":"team_0"}, {"agent_obs": obs[1], "id":"team_1"}]
+
+    def _build_minimap(self):
+
+        #need to render first
+        if not self.display_mode:
+            self.viewer.set_mode()
+            self.display_mode = True
+
+        self.viewer.draw_background()
+        for w in self.map['objects']:
+            self.viewer.draw_map(w)
+
+        self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+        if self.draw_obs:
+            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+        # image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+
+        # return image
+
+
+
+    def render(self, info=None):
+
+        if self.minimap_mode:
+            pass
+        else:
+
+            if not self.display_mode:
+                self.viewer.set_mode()
+                self.display_mode=True
+
+            self.viewer.draw_background()
+            for w in self.map['objects']:
+                self.viewer.draw_map(w)
+
+            self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary,         self.agent_list)
+
+        if self.draw_obs:
+            if len(self.obs_list) > 0:
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
+
+        if self.show_traj:
+            self.get_trajectory()
+            self.viewer.draw_trajectory(self.agent_record, self.agent_list)
+
+        self.viewer.draw_direction(self.agent_pos, self.agent_accel)
+
+
+        # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
+        debug('Step: ' + str(self.step_cnt), x=30)
+        if info is not None:
+            debug(info, x=100)
+
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+        pygame.display.flip()
+
+
 

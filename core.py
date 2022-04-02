@@ -200,6 +200,8 @@ class OlympicsBase(object):
                 boundary = self.get_obs_boundaray(position, r, visibility)
             #print("boundary: ", boundary)
                 self.obs_boundary_init.append(boundary)
+            else:
+                self.obs_boundary_init.append(None)
             # self.obs_boundary = self.obs_boundary_init
     def merge_map(self):
         point2wall = {}
@@ -936,6 +938,8 @@ class OlympicsBase(object):
 
         for agent_idx, agent in enumerate(self.agent_list):
             if self.agent_list[agent_idx].type == 'ball':
+                self.obs_boundary.append(None)
+                obs_list.append(None)
                 continue
 
             time_s = time.time()

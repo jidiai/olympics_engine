@@ -10,6 +10,8 @@ import pygame
 import sys
 import os
 
+from typing import List, Dict
+
 # color 宏
 COLORS = {
     'red': [255, 0, 0],
@@ -101,8 +103,8 @@ class curling(OlympicsBase):
         self.max_n = 4
         self.round_max_step = 100
 
-        self.vis=300
-        self.vis_clear = 10
+        self.vis=200
+        self.vis_clear = 5
 
         self.purple_rock = pygame.image.load(os.path.join(CURRENT_PATH, "assets/purple rock.png"))
         self.green_rock = pygame.image.load(os.path.join(CURRENT_PATH,"assets/green rock.png"))
@@ -111,6 +113,11 @@ class curling(OlympicsBase):
         # self.curling_ground.set_alpha(150)
 
     def reset(self):
+        self.purple_rock = pygame.image.load(os.path.join(CURRENT_PATH, "assets/purple rock.png"))
+        self.green_rock = pygame.image.load(os.path.join(CURRENT_PATH,"assets/green rock.png"))
+        self.curling_ground = pygame.image.load(os.path.join(CURRENT_PATH, "assets/curling ground.png"))
+        self.crown_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/crown.png"))
+
         self.release = False
         self.gamma = 0.98
 
@@ -147,7 +154,14 @@ class curling(OlympicsBase):
         self.current_team = 0
         obs = self.get_obs()
 
-        return [obs, np.zeros_like(obs)-1]
+        self.minimap_mode = True
+
+        if self.minimap_mode:
+            self._build_minimap()
+        output_init_obs = self._build_from_raw_obs(obs)
+        return output_init_obs
+
+        # return [obs, np.zeros_like(obs)-1]
 
     def _reset_round(self):
         self.current_team = 1-self.current_team
@@ -296,14 +310,16 @@ class curling(OlympicsBase):
             step_reward = [100., 0] if self.final_winner == 0 else [0., 100]
             self.view_terminal = True
 
-        if self.current_team == 0:
-            obs_next = [obs_next, np.zeros_like(obs_next)-1]
-        else:
-            obs_next = [np.zeros_like(obs_next)-1, obs_next]
-
+        # if self.current_team == 0:
+        #     obs_next = [obs_next, np.zeros_like(obs_next)-1]
+        # else:
+        #     obs_next = [np.zeros_like(obs_next)-1, obs_next]
+        if self.minimap_mode:
+            self._build_minimap()
+        output_obs_next = self._build_from_raw_obs(obs_next)
 
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
-        return obs_next, step_reward, done, ''
+        return output_obs_next, step_reward, done, ''
 
     def get_obs_encode(self):
         obs = self.get_obs()
@@ -312,6 +328,33 @@ class curling(OlympicsBase):
         else:
             return [np.zeros_like(obs), obs]
 
+
+    def _build_from_raw_obs(self, obs):
+        if self.minimap_mode:
+            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+
+        if self.current_team == 0:
+            return [{'agent_obs': obs[0], "minimap": image if self.minimap_mode else None, "id": "team_0"},
+                    {'agent_obs': np.zeros_like(obs[0]) - 1, "minimap": None, "id": "team_1"}]
+        elif self.current_team == 1:
+            return [{"agent_obs": np.zeros_like(obs[1]) - 1, "minimap": None, "id": "team_0"},
+                    {"agent_obs": obs[1], "minimap": image if self.minimap_mode else None, "id": "team_1"}]
+
+    def _build_minimap(self):
+        #need to render first
+        if not self.display_mode:
+            self.viewer.set_mode()
+            self.display_mode = True
+
+        self.viewer.draw_background()
+
+        for w in self.map['objects']:
+            self.viewer.draw_map(w)
+
+        self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+        if self.draw_obs:
+            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
 
 
     def get_reward(self):
@@ -380,21 +423,44 @@ class curling(OlympicsBase):
 
     def render(self, info=None):
 
-        if not self.display_mode:
-            self.viewer.set_mode()
-            self.display_mode=True
+        if self.minimap_mode:
+            ground_image = pygame.transform.scale(self.curling_ground, size=(200, 200))
+            self.viewer.background.blit(ground_image, (200, 400))
 
-        self.viewer.draw_background()
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+            # 先画map; ball在map之上
+            for w in self.map['objects']:
+                if w.type=='arc':
+                    continue
+                self.viewer.draw_map(w)
 
-        ground_image = pygame.transform.scale(self.curling_ground, size=(200,200))
-        self.viewer.background.blit(ground_image, (200,400))
-        # 先画map; ball在map之上
-        for w in self.map['objects']:
-            if w.type=='arc':
-                continue
-            self.viewer.draw_map(w)
+            self._draw_curling_rock(self.agent_pos, self.agent_list)
 
-        self._draw_curling_rock(self.agent_pos, self.agent_list)
+        else:
+
+            if not self.display_mode:
+                self.viewer.set_mode()
+                self.display_mode=True
+
+            self.viewer.draw_background()
+
+            ground_image = pygame.transform.scale(self.curling_ground, size=(200, 200))
+            self.viewer.background.blit(ground_image, (200, 400))
+
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+
+            # 先画map; ball在map之上
+            for w in self.map['objects']:
+                if w.type=='arc':
+                    continue
+                self.viewer.draw_map(w)
+
+            self._draw_curling_rock(self.agent_pos, self.agent_list)
+
+
         # self.viewer.draw_ball(self.agent_pos, self.agent_list)
         if self.show_traj:
             self.get_trajectory()
@@ -402,17 +468,18 @@ class curling(OlympicsBase):
         self.viewer.draw_direction(self.agent_pos, self.agent_accel)
         #self.viewer.draw_map()
 
-        if self.draw_obs:
-            self.viewer.draw_obs(self.obs_boundary, [self.agent_list[-1]])
 
+
+
+        if self.draw_obs:
             if self.current_team == 0:
                 # self.viewer.draw_view(self.obs_list, [self.agent_list[-1]])
                 # self.viewer.draw_curling_view(self.purple_rock,self.green_rock,self.obs_list, [self.agent_list[-1]])
-                self._draw_curling_view(self.obs_list, [self.agent_list[-1]])
+                self._draw_curling_view(self.obs_list, self.agent_list)
             else:
                 # self.viewer.draw_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
                 # self.viewer.draw_curling_view(self.purple_rock, self.green_rock, [None, self.obs_list[0]], [None, self.agent_list[-1]])
-                self._draw_curling_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
+                self._draw_curling_view(self.obs_list, self.agent_list)
 
 
             debug('Agent 0', x=570, y=110, c='purple')
@@ -496,46 +563,79 @@ class curling(OlympicsBase):
             else:
                 raise NotImplementedError
 
-    def _draw_curling_view(self, obs, agent_list):       #obs: [2, 100, 100] list
+    def _draw_curling_view(self, obs: List, agent_list: List):       #obs: [2, 100, 100] list
 
         #draw agent 1, [50, 50], [50+width, 50], [50, 50+height], [50+width, 50+height]
-        coord = [580 + 70 * i for i in range(len(obs))]
-        for agent_idx in range(len(obs)):
-            matrix = obs[agent_idx]
-            if matrix is None:
-                continue
+        # coord = [580 + 70 * i for i in range(len(obs))]
+        matrix = obs[-1]
+        agent = agent_list[-1]
+        color = agent.color
+        r=  agent.r
+        coord = 580 if agent.color == 'purple' else 580+70
+        count = int(color == 'green')
 
-            obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
-            y = 40 - obs_height
-            for row in matrix:
-                x = coord[agent_idx]- obs_height/2
-                for item in row:
-                    pygame.draw.rect(self.viewer.background, COLORS[IDX_TO_COLOR[int(item)]], [x,y,grid_node_width, grid_node_height])
-                    x+= grid_node_width
-                y += grid_node_height
+        obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
+        y = 40-obs_weight
+        for row in matrix:
+            x = coord - obs_height / 2
+            for item in row:
+                pygame.draw.rect(self.viewer.background, COLORS[IDX_TO_COLOR[int(item)]],
+                                 [x, y, grid_node_width, grid_node_height])
+                x += grid_node_width
+            y += grid_node_height
 
-            color = agent_list[agent_idx].color
-            r = agent_list[agent_idx].r
+        if color == 'purple':
+            image_purple = pygame.transform.scale(self.purple_rock, size=(r * 2, r * 2))
+            loc = [coord + 15 - r, 70 ]
+            self.viewer.background.blit(image_purple, loc)
+        elif color == 'green':
+            image_green = pygame.transform.scale(self.green_rock, size=(r * 2, r * 2))
+            loc = [coord + 15 - r, 70 ]
+            self.viewer.background.blit(image_green, loc)
+        else:
+            raise NotImplementedError
 
-            if color == 'purple':
-                image_purple = pygame.transform.scale(self.purple_rock, size=(r*2, r*2))
-                loc = [coord[agent_idx]+15-r, 70 + agent_list[agent_idx].r-r]
-                self.viewer.background.blit(image_purple, loc)
-            elif color == 'green':
-                image_green = pygame.transform.scale(self.green_rock, size=(r*2, r*2))
-                loc = [coord[agent_idx]+15-r, 70 + agent_list[agent_idx].r-r]
-                self.viewer.background.blit(image_green, loc)
-            else:
-                raise NotImplementedError
-
-            #
-            # pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r],
-            #                    agent_list[agent_idx].r, width=0)
-            # pygame.draw.circle(self.background, COLORS["black"], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r], 2,
-            #                    width=0)
-
-            pygame.draw.lines(self.viewer.background, points =[[563+70*agent_idx,10],[563+70*agent_idx, 70], [565+60+70*agent_idx,70], [565+60+70*agent_idx, 10]], closed=True,
-                              color = COLORS[agent_list[agent_idx].color], width=2)
+        pygame.draw.lines(self.viewer.background, points=[[563 + 70 * count, 10], [563 + 70 * count, 70],
+                                                          [565 + 60 + 70 * count, 70],
+                                                          [565 + 60 + 70 * count, 10]], closed=True,
+                          color=COLORS[color], width=2)
+        #
+        # for agent_idx in range(len(obs)):
+        #     matrix = obs[agent_idx]
+        #     if matrix is None:
+        #         continue
+        #
+        #     obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
+        #     y = 40 - obs_height
+        #     for row in matrix:
+        #         x = coord[agent_idx]- obs_height/2
+        #         for item in row:
+        #             pygame.draw.rect(self.viewer.background, COLORS[IDX_TO_COLOR[int(item)]], [x,y,grid_node_width, grid_node_height])
+        #             x+= grid_node_width
+        #         y += grid_node_height
+        #
+        #     color = agent_list[agent_idx].color
+        #     r = agent_list[agent_idx].r
+        #
+        #     if color == 'purple':
+        #         image_purple = pygame.transform.scale(self.purple_rock, size=(r*2, r*2))
+        #         loc = [coord[agent_idx]+15-r, 70 + agent_list[agent_idx].r-r]
+        #         self.viewer.background.blit(image_purple, loc)
+        #     elif color == 'green':
+        #         image_green = pygame.transform.scale(self.green_rock, size=(r*2, r*2))
+        #         loc = [coord[agent_idx]+15-r, 70 + agent_list[agent_idx].r-r]
+        #         self.viewer.background.blit(image_green, loc)
+        #     else:
+        #         raise NotImplementedError
+        #
+        #     #
+        #     # pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r],
+        #     #                    agent_list[agent_idx].r, width=0)
+        #     # pygame.draw.circle(self.background, COLORS["black"], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r], 2,
+        #     #                    width=0)
+        #
+        #     pygame.draw.lines(self.viewer.background, points =[[563+70*agent_idx,10],[563+70*agent_idx, 70], [565+60+70*agent_idx,70], [565+60+70*agent_idx, 10]], closed=True,
+        #                       color = COLORS[agent_list[agent_idx].color], width=2)
 
 
 
