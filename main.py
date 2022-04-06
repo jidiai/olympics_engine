@@ -14,6 +14,7 @@ from scenario.wrestling import *
 from scenario.volleyball import *
 from scenario.billiard import *
 from scenario.curling import *
+from scenario.curling_joint import *
 
 import random
 import numpy as np
@@ -63,6 +64,10 @@ if __name__ == "__main__":
             agent_num = 2
         elif args.map == 'curling':
             game = curling(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'curling-joint':
+            game = curling_joint(Gamemap)
             agent_num = 2
 
         agent = random_agent()

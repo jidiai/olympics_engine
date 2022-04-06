@@ -30,7 +30,7 @@ class Running(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.minimap_mode = False
+        self.minimap_mode = True
 
         init_obs = self.get_obs()
 
