@@ -6,6 +6,10 @@ import pygame
 import sys
 import math
 import copy
+import os
+
+from pathlib import Path
+CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 
 def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
@@ -40,6 +44,9 @@ class billiard(OlympicsBase):
 
         self.total_reward = 0
 
+        self.ball = pygame.image.load(os.path.join(CURRENT_PATH, "assets/ball.png"))
+        self.cue_ball = pygame.image.load(os.path.join(CURRENT_PATH, "assets/cue_ball.png"))
+
     def reset(self):
         self.agent_num = 0
         self.agent_list = []
@@ -51,6 +58,10 @@ class billiard(OlympicsBase):
         self.agent_theta = []
         self.obs_boundary_init = list()
         self.obs_boundary = self.obs_boundary_init
+
+        self.ball = pygame.image.load(os.path.join(CURRENT_PATH, "assets/ball.png"))
+        self.cue_ball = pygame.image.load(os.path.join(CURRENT_PATH, "assets/cue_ball.png"))
+
 
         self.generate_map(self.map)
         self.merge_map()
@@ -382,7 +393,7 @@ class billiard(OlympicsBase):
     def render(self, info=None):
 
         if self.minimap_mode:
-            pass
+            self._draw_ball(self.agent_pos, self.agent_list)
         else:
 
             if not self.display_mode:
@@ -445,4 +456,31 @@ class billiard(OlympicsBase):
 
         pygame.draw.line(self.viewer.background, start_pos=[120, 60], end_pos=[120, 150], color=[0, 0, 0])
         pygame.draw.line(self.viewer.background, start_pos=[180, 60], end_pos=[180, 150], color=[0, 0, 0])
+
+    def _draw_ball(self, pos_list, agent_list):
+
+        assert len(pos_list) == len(agent_list)
+
+
+        for i in range(len(pos_list)):
+            t=pos_list[i]
+            r = agent_list[i].r
+            color =  agent_list[i].color
+
+            # image = pygame.transform.scale(self.athelet, size=(r*4, r*4))
+            # rotated_image = pygame.transform.rotate(image, angle)
+            # new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-2*r, t[1]-2*r)).center)
+            if color == 'sky blue':
+                s = 2.5
+                image = pygame.transform.scale(self.ball, size=(r*s, r*s))
+
+                loc = (t[0]-s/2*r, t[1]-s/2*r)
+                self.viewer.background.blit(image, loc)
+
+            elif color == 'purple':
+                s = 2.7
+                image = pygame.transform.scale(self.cue_ball, size=(r*s, r*s))
+
+                loc = (t[0]-s/2*r, t[1]-s/2*r)
+                self.viewer.background.blit(image, loc)
 

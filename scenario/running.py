@@ -3,6 +3,10 @@ from olympics_engine.viewer import Viewer, debug
 import time
 import pygame
 import sys
+import os
+
+from pathlib import Path
+CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 
 class Running(OlympicsBase):
     def __init__(self, map, seed = None):
@@ -17,7 +21,10 @@ class Running(OlympicsBase):
         self.speed_cap =  100
 
         self.draw_obs = True
-        self.show_traj = True
+        self.show_traj = False
+
+        self.mouse_purple = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_purple.png"))
+        self.mouse_green = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_green.png"))
 
         #self.is_render = True
 
@@ -27,10 +34,13 @@ class Running(OlympicsBase):
         self.step_cnt = 0
         self.done = False
 
+        self.mouse_purple = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_purple.png"))
+        self.mouse_green = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_green.png"))
+
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.minimap_mode = False
+        self.minimap_mode = True
 
         init_obs = self.get_obs()
 
@@ -124,8 +134,8 @@ class Running(OlympicsBase):
 
         self.viewer.draw_ball(self.agent_pos, self.agent_list)
 
-        if self.draw_obs:
-            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+        # if self.draw_obs:
+        #     self.viewer.draw_obs(self.obs_boundary, self.agent_list)
 
         # image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
 
@@ -136,7 +146,9 @@ class Running(OlympicsBase):
     def render(self, info=None):
 
         if self.minimap_mode:
-            pass
+
+            self._draw_athelet(self.agent_pos, self.agent_list, self.agent_theta)
+            # pass
         else:
 
             if not self.display_mode:
@@ -153,6 +165,7 @@ class Running(OlympicsBase):
                 self.viewer.draw_obs(self.obs_boundary,         self.agent_list)
 
         if self.draw_obs:
+            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
             if len(self.obs_list) > 0:
                 self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
 
@@ -174,6 +187,35 @@ class Running(OlympicsBase):
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
+
+    def _draw_athelet(self, pos_list, agent_list, theta_list):
+
+        assert len(pos_list) == len(agent_list)
+        s = 5
+
+        for i in range(len(pos_list)):
+            t=pos_list[i]
+            r = agent_list[i].r
+            angle = theta_list[i][0]
+            color =  agent_list[i].color
+
+            # image = pygame.transform.scale(self.athelet, size=(r*4, r*4))
+            # rotated_image = pygame.transform.rotate(image, angle)
+            # new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-2*r, t[1]-2*r)).center)
+            if color == 'purple':
+                image = pygame.transform.scale(self.mouse_purple, size=(r*s, r*s))
+                rotated_image = pygame.transform.rotate(image, -angle)
+                new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-s/2*r, t[1]-s/2*r)).center)
+
+                # loc = (t[0]-2*r, t[1]-2*r)
+                self.viewer.background.blit(rotated_image, new_rect)
+            elif color == 'green':
+                image = pygame.transform.scale(self.mouse_green, size=(r*s, r*s))
+                rotated_image = pygame.transform.rotate(image, -angle)
+                new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-s/2*r, t[1]-s/2*r)).center)
+
+                # loc = (t[0]-2*r, t[1]-2*r)
+                self.viewer.background.blit(rotated_image, new_rect)
 
 
 

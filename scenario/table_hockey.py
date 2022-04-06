@@ -3,6 +3,10 @@ from olympics_engine.viewer import Viewer, debug
 import pygame
 import sys
 import random
+import os
+
+from pathlib import Path
+CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 
 class table_hockey(OlympicsBase):
     def __init__(self, map):
@@ -19,12 +23,20 @@ class table_hockey(OlympicsBase):
         
         self.speed_cap = 100
 
+        self.mouse_purple = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_purple.png"))
+        self.mouse_green = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_green.png"))
+        self.puck = pygame.image.load(os.path.join(CURRENT_PATH, "assets/hockey_puck.png"))
+
 
     def reset(self):
         self.set_seed()
         self.init_state()
         self.step_cnt = 0
         self.done = False
+
+        self.mouse_purple = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_purple.png"))
+        self.mouse_green = pygame.image.load(os.path.join(CURRENT_PATH, "assets/mouse_green.png"))
+        self.puck = pygame.image.load(os.path.join(CURRENT_PATH, "assets/hockey_puck.png"))
 
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
@@ -36,6 +48,7 @@ class table_hockey(OlympicsBase):
             self._build_minimap()
 
         output_init_obs = self._build_from_raw_obs(init_obs)
+
         return output_init_obs
 
 
@@ -171,7 +184,7 @@ class table_hockey(OlympicsBase):
     def render(self, info=None):
 
         if self.minimap_mode:
-            pass
+            self._draw_athelet(self.agent_pos, self.agent_list, self.agent_theta)
         else:
 
             if not self.display_mode:
@@ -210,3 +223,39 @@ class table_hockey(OlympicsBase):
                 sys.exit()
         pygame.display.flip()
         #self.viewer.background.fill((255, 255, 255))
+
+    def _draw_athelet(self, pos_list, agent_list, theta_list):
+
+        assert len(pos_list) == len(agent_list)
+        s = 5
+
+        for i in range(len(pos_list)):
+            t=pos_list[i]
+            r = agent_list[i].r
+            angle = theta_list[i][0]
+            color =  agent_list[i].color
+
+            # image = pygame.transform.scale(self.athelet, size=(r*4, r*4))
+            # rotated_image = pygame.transform.rotate(image, angle)
+            # new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-2*r, t[1]-2*r)).center)
+            if color == 'purple':
+                image = pygame.transform.scale(self.mouse_purple, size=(r*s, r*s))
+                rotated_image = pygame.transform.rotate(image, -angle)
+                new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-s/2*r, t[1]-s/2*r)).center)
+
+                # loc = (t[0]-2*r, t[1]-2*r)
+                self.viewer.background.blit(rotated_image, new_rect)
+            elif color == 'green':
+                image = pygame.transform.scale(self.mouse_green, size=(r*s, r*s))
+                rotated_image = pygame.transform.rotate(image, -angle)
+                new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-s/2*r, t[1]-s/2*r)).center)
+
+                # loc = (t[0]-2*r, t[1]-2*r)
+                self.viewer.background.blit(rotated_image, new_rect)
+            elif color == 'sky blue':
+                image = pygame.transform.scale(self.puck, size=(r*2, r*2))
+                # rotated_image = pygame.transform.rotate(image, -angle)
+                # new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (t[0]-1*r, t[1]-1*r)).center)
+
+                loc = (t[0]-r, t[1]-r)
+                self.viewer.background.blit(image, loc)
