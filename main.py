@@ -7,14 +7,10 @@ from olympics_engine.generator import create_scenario
 import argparse
 from olympics_engine.agent import *
 import time
-from scenario.running import *
-from scenario.table_hockey import *
-from scenario.football import *
-from scenario.wrestling import *
-from scenario.volleyball import *
-from scenario.billiard import *
-from scenario.curling import *
-from scenario.curling_joint import *
+
+from scenario import Running, table_hockey, football, wrestling, billiard, curling, curling_joint
+
+from AI_olympics import AI_Olympics
 
 import random
 import numpy as np
@@ -36,13 +32,14 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="curling", type= str,
-                        help = 'running/table-hockey/football/wrestling/billiard/curling')
+    parser.add_argument('--map', default="all", type= str,
+                        help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
 
     for i in range(1):
-        Gamemap = create_scenario(args.map)
+        if args.map != 'all':
+            Gamemap = create_scenario(args.map)
         #game = table_hockey(Gamemap)
         if args.map == 'running':
             game = Running(Gamemap)
@@ -68,6 +65,10 @@ if __name__ == "__main__":
 
         elif args.map == 'curling-joint':
             game = curling_joint(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'all':
+            game = AI_Olympics(random_selection = False, minimap=True)
             agent_num = 2
 
         agent = random_agent()

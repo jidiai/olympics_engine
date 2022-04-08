@@ -10,7 +10,9 @@ def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
 class wrestling(OlympicsBase):
-    def __init__(self, map):
+    def __init__(self, map, minimap):
+        self.minimap_mode = minimap
+
         super(wrestling, self).__init__(map)
 
         self.gamma = 1  # v衰减系数
@@ -38,7 +40,6 @@ class wrestling(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.minimap_mode = True
 
         init_obs = self.get_obs()
         if self.minimap_mode:
@@ -163,6 +164,15 @@ class wrestling(OlympicsBase):
                 return True
 
         return False
+
+    def check_win(self):
+        if self.agent_list[0].finished and not (self.agent_list[1].finished):
+            return '1'
+        elif not (self.agent_list[0].finished) and self.agent_list[1].finished:
+            return '0'
+        else:
+            return '-1'
+
 
     def render(self, info=None):
 

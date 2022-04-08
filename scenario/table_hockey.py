@@ -5,7 +5,9 @@ import sys
 import random
 
 class table_hockey(OlympicsBase):
-    def __init__(self, map):
+    def __init__(self, map, minimap=False):
+        self.minimap_mode = minimap
+
         super(table_hockey, self).__init__(map)
         self.gamma = 1  # v衰减系数
         self.wall_restitution = 0.8
@@ -29,7 +31,6 @@ class table_hockey(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.minimap_mode = True
 
         init_obs = self.get_obs()
         if self.minimap_mode:
@@ -72,6 +73,7 @@ class table_hockey(OlympicsBase):
         obs_next = self.get_obs()              #need to add agent or ball check in get_obs
 
         done = self.is_terminal()
+        self.done = done
         self.change_inner_state()
 
         if self.minimap_mode:
@@ -166,6 +168,31 @@ class table_hockey(OlympicsBase):
                 return True
 
         return False
+
+    def check_win(self):
+        if self.done:
+            self.ball_end_pos = None
+            for agent_idx in range(self.agent_num):
+                agent = self.agent_list[agent_idx]
+                if agent.type == 'ball' and agent.finished:
+                    self.ball_end_pos = self.agent_pos[agent_idx]
+
+        if self.ball_end_pos is None:
+            return '-1'
+        else:
+            if self.ball_end_pos[0] < 400:
+                if self.agent_pos[0][0] < 400:
+                    return '1'
+                else:
+                    return '0'
+            elif self.ball_end_pos[0] > 400:
+                if self.agent_pos[0][0] < 400:
+                    return '0'
+                else:
+                    return '1'
+
+
+
 
 
     def render(self, info=None):

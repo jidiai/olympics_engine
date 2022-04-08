@@ -14,7 +14,7 @@ class billiard(OlympicsBase):
     def __init__(self, map):
         super(billiard, self).__init__(map)
 
-        self.gamma = 0.99  # v衰减系数
+        self.gamma = 0.985  # v衰减系数
         self.wall_restitution = 0.8
         self.circle_restitution = 1
         self.print_log = False
@@ -33,7 +33,7 @@ class billiard(OlympicsBase):
         self.vis = 200
         self.vis_clear = 5
 
-        self.max_n_hit = 6
+        self.max_n_hit = 3
 
         self.white_penalty = -10
         self.pot_reward = 1

@@ -5,7 +5,9 @@ import pygame
 import sys
 
 class Running(OlympicsBase):
-    def __init__(self, map, seed = None):
+    def __init__(self, map, seed = None, minimap=False):
+        self.minimap_mode = minimap
+
         super(Running, self).__init__(map, seed)
 
         self.gamma = 1  # v衰减系数
@@ -30,7 +32,6 @@ class Running(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.minimap_mode = True
 
         init_obs = self.get_obs()
 
@@ -131,6 +132,13 @@ class Running(OlympicsBase):
 
         # return image
 
+    def check_win(self):
+        if self.agent_list[0].finished and not (self.agent_list[1].finished):
+            return '0'
+        elif not(self.agent_list[0].finished) and self.agent_list[1].finished:
+            return '1'
+        else:
+            return '-1'
 
 
     def render(self, info=None):
