@@ -9,8 +9,6 @@ import math
 import pygame
 import sys
 import os
-import random
-import copy
 
 from typing import List, Dict
 
@@ -90,9 +88,9 @@ def distance_to_line(l1, l2, pos):
     return abs(cl1_n)
 
 
-class curling(OlympicsBase):
+class curling_joint(OlympicsBase):
     def __init__(self, map):
-        super(curling, self).__init__(map)
+        super(curling_joint, self).__init__(map)
 
         self.tau = 0.1
         self.wall_restitution = 1
@@ -114,19 +112,19 @@ class curling(OlympicsBase):
         self.crown_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/crown.png"))
         # self.curling_ground.set_alpha(150)
 
-
     def reset(self):
         self.purple_rock = pygame.image.load(os.path.join(CURRENT_PATH, "assets/purple rock.png"))
         self.green_rock = pygame.image.load(os.path.join(CURRENT_PATH,"assets/green rock.png"))
         self.curling_ground = pygame.image.load(os.path.join(CURRENT_PATH, "assets/curling ground.png"))
         self.crown_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/crown.png"))
 
-        self.release = False
+        self.gamma = 0.98
 
-        self.top_area_gamma = 0.98
-        self.down_area_gamma = 0.95  # random.uniform(0.9, 0.95)
-
-        self.gamma = self.top_area_gamma
+        self.num_purple = 1
+        self.num_green = 1
+        self.temp_winner = -1
+        self.round_step = 0
+        self.round_countdown = 0
 
         self.agent_num = 0
         self.agent_list = []
@@ -136,46 +134,27 @@ class curling(OlympicsBase):
         self.agent_v = []
         self.agent_accel = []
         self.agent_theta = []
-        self.temp_winner = -1
-        self.round_step = 0
-
-        if reset_game:
-            assert self.game_round == 1
-            self.current_team = 1  # start from green
-            self.num_purple = 0
-            self.num_green = 1
-            map_copy = copy.deepcopy(self.map)
-            map_copy['agents'][0].color = 'green'
-            map_copy["agents"][0].original_color = 'green'
-
-        else:
-            self.num_purple = 1
-            self.num_green = 0
-            self.current_team = 0
-            self.purple_game_point = 0
-            self.green_game_point = 0
-            self.game_round = 0
-            map_copy = copy.deepcopy(self.map)
 
         self.obs_boundary_init = list()
         self.obs_boundary = self.obs_boundary_init
 
-        # self.check_valid_map()
-        self.generate_map(map_copy)
+        #self.check_valid_map()
+        self.generate_map(self.map)
         self.merge_map()
 
         self.init_state()
         self.step_cnt = 0
-        self.done = False
-        self.release = False
+        self.done = [False, False]
+        self.release = [False, False]
 
         self.viewer = Viewer(self.view_setting)
-        self.display_mode = False
+        self.display_mode=False
         self.view_terminal = False
 
+        # self.current_team = 0
         obs = self.get_obs()
 
-        self.minimap_mode = True
+        self.minimap_mode = False
 
         if self.minimap_mode:
             self._build_minimap()
@@ -183,58 +162,57 @@ class curling(OlympicsBase):
         return output_init_obs
 
         # return [obs, np.zeros_like(obs)-1]
+    #
+    # def _reset_round(self):
+    #     self.current_team = 1-self.current_team
+    #     #convert last agent to ball
+    #     if len(self.agent_list) != 0:
+    #         last_agent = self.agent_list[-1]
+    #         last_ball = Ball(mass = last_agent.mass, r = last_agent.r, position = self.agent_pos[-1],
+    #                          color = last_agent.color)
+    #         last_ball.alive = False
+    #         self.agent_list[-1] = last_ball
+    #
+    #     #add new agent
+    #     if self.current_team == 0:
+    #         #team purple
+    #         new_agent_color = 'purple'
+    #         self.num_purple += 1
+    #
+    #     elif self.current_team == 1:
+    #         new_agent_color = 'green'
+    #         self.num_green += 1
+    #
+    #     else:
+    #         raise NotImplementedError
+    #
+    #     new_agent = Agent(mass = 1, r= 15, position = self.start_pos, color = new_agent_color,
+    #                       vis = self.vis, vis_clear = self.vis_clear)
+    #
+    #     self.agent_list.append(new_agent)
+    #     self.agent_init_pos[-1] = self.start_pos
+    #     new_boundary = self.get_obs_boundaray(self.start_pos, 15, 300)
+    #     self.obs_boundary_init.append(new_boundary)
+    #     self.agent_num += 1
+    #
+    #     self.agent_pos.append(self.agent_init_pos[-1])
+    #     self.agent_v.append([0,0])
+    #     self.agent_accel.append([0,0])
+    #     init_obs = self.start_init_obs
+    #     self.agent_theta.append([init_obs])
+    #     self.agent_record.append([self.agent_init_pos[-1]])
+    #
+    #     self.release = False
+    #     self.gamma = 0.98
+    #
+    #     self.round_step = 0
+    #
+    #     return self.get_obs()
 
 
-    def _reset_round(self):
-        self.current_team = 1-self.current_team
-        #convert last agent to ball
-        if len(self.agent_list) != 0:
-            last_agent = self.agent_list[-1]
-            last_ball = Ball(mass = last_agent.mass, r = last_agent.r, position = self.agent_pos[-1],
-                             color = last_agent.color)
-            last_ball.alive = False
-            self.agent_list[-1] = last_ball
-
-        #add new agent
-        if self.current_team == 0:
-            #team purple
-            new_agent_color = 'purple'
-            self.num_purple += 1
-
-        elif self.current_team == 1:
-            new_agent_color = 'green'
-            self.num_green += 1
-
-        else:
-            raise NotImplementedError
-
-        new_agent = Agent(mass = 1, r= 15, position = self.start_pos, color = new_agent_color,
-                          vis = self.vis, vis_clear = self.vis_clear)
-
-        self.agent_list.append(new_agent)
-        self.agent_init_pos[-1] = self.start_pos
-        new_boundary = self.get_obs_boundaray(self.start_pos, 15, self.vis)
-        self.obs_boundary_init.append(new_boundary)
-        self.agent_num += 1
-
-        self.agent_pos.append(self.agent_init_pos[-1])
-        self.agent_v.append([0,0])
-        self.agent_accel.append([0,0])
-        init_obs = self.start_init_obs
-        self.agent_theta.append([init_obs])
-        self.agent_record.append([self.agent_init_pos[-1]])
-
-        self.release = False
-        self.gamma = self.top_area_gamma
-
-        self.round_step = 0
-
-        return self.get_obs()
 
 
-
-
-    def cross_detect(self):
+    def cross_detect(self):     # fixme(yan): too ugly
         """
         check whether the agent has reach the cross(final) line
         :return:
@@ -243,6 +221,11 @@ class curling(OlympicsBase):
 
             agent = self.agent_list[agent_idx]
             if agent.type != 'agent':
+                continue
+
+            if agent.color == 'purple' and self.release[0]:
+                continue
+            if agent.color == 'green' and self.release[1]:
                 continue
 
             for object_idx in range(len(self.map['objects'])):
@@ -257,15 +240,30 @@ class curling(OlympicsBase):
                         # print('agent type = ', agent.type)
                         agent.alive = False
                         #agent.color = 'red'
-                        self.gamma = self.down_area_gamma             #this will change the gamma for the whole env, so need to change if dealing with multi-agent
-                        self.release = True
-                        self.round_countdown = self.round_max_step-self.round_step
+                        self.gamma = 0.95            #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+
+                        if agent.color == 'purple':
+                            self.release[0] = True
+                            # self.round_countdown[0] = self.round_max_step - self.round_step[0]
+                        elif agent.color == 'green':
+                            self.release[1] = True
+                            # self.round_countdown[1] = self.round_max_step - self.round_step[1]
+                        self.round_countdown = self.round_max_step - self.round_step
+
+                        # self.round_countdown = self.round_max_step-self.round_step
                     # if the ball hasnot pass the cross, the relase will be True again in the new round
+
     def check_action(self, action_list):
         action = []
         for agent_idx in range(len(self.agent_list)):
             if self.agent_list[agent_idx].type == 'agent':
-                action.append(action_list[0])
+                if self.agent_list[agent_idx].color == 'purple':
+                    action.append(action_list[0] if not self.release[0] else None)
+                elif self.agent_list[agent_idx].color == 'green':
+                    action.append(action_list[1] if not self.release[1] else None)
+                else:
+                    raise NotImplementedError
+
                 _ = action_list.pop(0)
             else:
                 action.append(None)
@@ -276,18 +274,21 @@ class curling(OlympicsBase):
 
     def step(self, actions_list):
 
-        actions_list = [actions_list[self.current_team]]
+        # actions_list = [actions_list[self.current_team]]
 
         #previous_pos = self.agent_pos
-        action_list = self.check_action(actions_list)
-        if self.release:
-            input_action = [None for _ in range(len(self.agent_list))]       #if jump, stop actions
-        else:
-            input_action = action_list
+        input_action = self.check_action(actions_list)
+
+
+
+        # if self.release:
+        #     input_action = [None for _ in range(len(self.agent_list))]       #if jump, stop actions
+        # else:
+        #     input_action = action_list
 
         self.stepPhysics(input_action, self.step_cnt)
 
-        if not self.release:
+        if not all(self.release):
             self.cross_detect()
         self.step_cnt += 1
         self.round_step += 1
@@ -295,9 +296,11 @@ class curling(OlympicsBase):
         obs_next = self.get_obs()
 
 
-        done = self.is_terminal()
+        done = False #self.is_terminal()
 
         if not done:
+            # fixme(yan): fix here
+
             round_end, end_info = self._round_terminal()
             if round_end:
 
@@ -328,45 +331,17 @@ class curling(OlympicsBase):
                 step_reward = [0., 0.]
 
         else:
-            if self.game_round == 1:
-                # self.final_winner, min_d = self.current_winner()
-                # self.temp_winner = self.final_winner
-                self._clear_agent()
-                self.cal_game_point()
+            self.final_winner, min_d = self.current_winner()
+            step_reward = [100., 0] if self.final_winner == 0 else [0., 100]
+            self.view_terminal = True
 
-                if self.purple_game_point > self.green_game_point:
-                    self.final_winner = 0
-                    step_reward = [100., 0]
-                elif self.green_game_point > self.purple_game_point:
-                    self.final_winner = 1
-                    step_reward = [0., 100.]
-                else:
-                    self.final_winner = -1
-                    step_reward = [0., 0.]
-
-                self.temp_winner = self.final_winner
-                # step_reward = [100., 0] if self.final_winner == 0 else [0., 100]
-                self.view_terminal = True
-
-            elif self.game_round == 0:
-
-                self._clear_agent()
-                game1_winner = self.current_winner()
-                step_reward = [10., 0] if game1_winner == 0 else [0., 10.]
-                self.cal_game_point()
-                self.game_round += 1
-                next_obs = self.reset(reset_game=True)
-
-                return next_obs, step_reward, False, 'game1 ends, switch position'
-            else:
-                raise NotImplementedError
-
-
-
+        # if self.current_team == 0:
+        #     obs_next = [obs_next, np.zeros_like(obs_next)-1]
+        # else:
+        #     obs_next = [np.zeros_like(obs_next)-1, obs_next]
         if self.minimap_mode:
             self._build_minimap()
         output_obs_next = self._build_from_raw_obs(obs_next)
-
 
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
         return output_obs_next, step_reward, done, ''
@@ -383,12 +358,9 @@ class curling(OlympicsBase):
         if self.minimap_mode:
             image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
 
-        if self.current_team == 0:
-            return [{'agent_obs': obs[0], "minimap": image if self.minimap_mode else None, "id": "team_0"},
-                    {'agent_obs': np.zeros_like(obs[0]) - 1, "minimap": None, "id": "team_1"}]
-        elif self.current_team == 1:
-            return [{"agent_obs": np.zeros_like(obs[1]) - 1, "minimap": None, "id": "team_0"},
-                    {"agent_obs": obs[1], "minimap": image if self.minimap_mode else None, "id": "team_1"}]
+        return [{'agent_obs': obs[0], "minimap": image if self.minimap_mode else None, "id": "team_0"},
+                {'agent_obs': obs[1], "minimap": image if self.minimap_mode else None, "id": "team_1"}]
+
 
     def _build_minimap(self):
         #need to render first
@@ -440,30 +412,54 @@ class curling(OlympicsBase):
         #         return True
 
     def _round_terminal(self):
+        #  all release, all stop, True
+        #  all not release, all stop, maximum step, True, need to delete both agent
+        #  one release and stop, one not release, maximum step, True, need to delete agent not releasing
+        #
 
-        if self.round_step > self.round_max_step and not self.release:      #after maximum round step the agent has not released yet
-            return True, -1
 
-        #agent_idx = -1
+        info = None
+        if self.round_step > self.round_max_step:
+            if not self.release[0] and self.release[1]:     #0 not release, 1 release, delete agent 0
+                info = '0 overtime'
+                if self._all_stopped(exception_agent_color='purple'):
+                    return True, info
+                else:
+                    return False, info
+
+            elif self.release[0] and not self.release[1]:   #0 release, 1 not release, delete agent 1
+                info = '1 overtime'
+                if self._all_stopped(exception_agent_color='green'):
+                    return True, info
+                else:
+                    return False, info
+
+            elif not self.release[0] and not self.release[1]:
+                return True, 'both overtime'
+
+            elif all(self.release):
+                return self._all_stopped(), None
+        else:
+            if all(self.release):
+                return self._all_stopped(), None
+
+            return False, None
+
+
+
+
+    def _all_stopped(self, exception_agent_color=''):
         L = []
         for agent_idx in range(self.agent_num):
+            if self.agent_list[agent_idx].color == exception_agent_color:
+                continue
             if (not self.agent_list[agent_idx].alive) and (self.agent_v[agent_idx][0] ** 2 +
                                                         self.agent_v[agent_idx][1] ** 2) < 1e-1:
                 L.append(True)
             else:
                 L.append(False)
+        return all(L)
 
-        return all(L), None
-
-    def _clear_agent(self):
-        if self.round_step > self.round_max_step and not self.release:
-            # clean the last agent
-            del self.agent_list[-1]
-            del self.agent_pos[-1]
-            del self.agent_v[-1]
-            del self.agent_theta[-1]
-            del self.agent_accel[-1]
-            self.agent_num -= 1
 
 
     def current_winner(self):
@@ -480,48 +476,7 @@ class curling(OlympicsBase):
 
         return win_team, min_dist
 
-    def cal_game_point(self):
 
-        center = [300, 500]
-        purple_dis = []
-        green_dis = []
-        min_dist = 1e4
-        closest_team = -1
-        for i, agent in enumerate(self.agent_list):
-            pos = self.agent_pos[i]
-            distance = math.sqrt((pos[0]-center[0])**2 + (pos[1]-center[1])**2)
-            if agent.color == 'purple':
-                purple_dis.append(distance)
-            elif agent.color=='green':
-                green_dis.append(distance)
-            else:
-                raise NotImplementedError
-
-            if distance < min_dist:
-                closest_team = 0 if agent.color == 'purple' else 1
-                min_dist = distance
-
-        purple_dis = np.array(sorted(purple_dis))
-        green_dis = np.array(sorted(green_dis))
-
-        if closest_team == 0:
-            if len(green_dis) == 0:
-                winner_point = len(purple_dis)
-            else:
-                winner_point = purple_dis < green_dis[0]
-            self.purple_game_point += np.float64(winner_point).sum()
-        elif closest_team == 1:
-            if len(purple_dis) == 0:
-                winner_point = len(green_dis)
-            else:
-                winner_point = green_dis < purple_dis[0]
-            self.green_game_point += np.float64(winner_point).sum()
-        elif closest_team == -1:
-            pass
-        else:
-            raise NotImplementedError
-
-        #print('purple dis = {}, green dis = {}'.format(purple_dis, green_dis))
 
     def render(self, info=None):
 
@@ -584,24 +539,12 @@ class curling(OlympicsBase):
                 self._draw_curling_view(self.obs_list, self.agent_list)
 
 
-                if self.current_team == 0:
-                    # self.viewer.draw_view(self.obs_list, [self.agent_list[-1]])
-                    # self.viewer.draw_curling_view(self.purple_rock,self.green_rock,self.obs_list, [self.agent_list[-1]])
-                    self._draw_curling_view(self.obs_list, [self.agent_list[-1]])
-                else:
-                    # self.viewer.draw_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
-                    # self.viewer.draw_curling_view(self.purple_rock, self.green_rock, [None, self.obs_list[0]], [None, self.agent_list[-1]])
-                    self._draw_curling_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
-
             debug('Agent 0', x=570, y=110, c='purple')
             debug("No. throws left: ", x=470, y=140)
-            debug("{}".format(self.max_n - self.num_purple), x=590, y=140, c='purple')
+            debug("{}".format(self.max_n - self.num_purple), x = 590, y=140, c='purple')
             debug('Agent 1', x=640, y=110, c='green')
-            debug("{}".format(self.max_n - self.num_green), x=660, y=140, c='green')
-            debug("Closest team:", x=470, y=170)
-            debug("Score:", x=500, y=200)
-            debug("{}".format(int(self.purple_game_point)), x=590, y=200, c='purple')
-            debug("{}".format(int(self.green_game_point)), x=660, y=200, c='green')
+            debug("{}".format(self.max_n - self.num_green), x=660, y = 140, c='green')
+            debug("Current winner:", x=470, y=170)
 
             if self.view_terminal:
                 crown_size=(50,50)
@@ -617,10 +560,9 @@ class curling(OlympicsBase):
 
 
             pygame.draw.line(self.viewer.background, start_pos=[470, 130], end_pos=[690, 130], color=[0,0,0])
-            pygame.draw.line(self.viewer.background, start_pos=[565, 100], end_pos=[565, 220], color=[0, 0, 0])
-            pygame.draw.line(self.viewer.background, start_pos=[630, 100], end_pos=[630, 220], color=[0, 0, 0])
+            pygame.draw.line(self.viewer.background, start_pos=[565, 100], end_pos=[565,190], color=[0,0,0])
+            pygame.draw.line(self.viewer.background, start_pos=[630, 100], end_pos=[630,190], color=[0,0,0])
             pygame.draw.line(self.viewer.background, start_pos=[470, 160], end_pos=[690, 160], color=[0,0,0])
-            pygame.draw.line(self.viewer.background, start_pos=[470, 190], end_pos=[690, 190], color=[0,0,0])
 
 
         #draw energy bar
@@ -638,15 +580,14 @@ class curling(OlympicsBase):
 
         debug("Countdown:", x=100)
         debug("{}".format(countdown), x=170, c="red")
-        # debug("Current winner:", x=200)
+        debug("Current winner:", x=200)
 
-        # if self.temp_winner == -1:
-        #     debug("None", x = 300)
-        # elif self.temp_winner == 0:
-        #     debug("Purple", x=300, c='purple')
-        # elif self.temp_winner == 1:
-        #     debug("Green", x=300, c='green')
-        debug('Game {}/{}'.format(self.game_round+1, 2), x= 280, y=50)
+        if self.temp_winner == -1:
+            debug("None", x = 300)
+        elif self.temp_winner == 0:
+            debug("Purple", x=300, c='purple')
+        elif self.temp_winner == 1:
+            debug("Green", x=300, c='green')
 
 
         if info is not None:

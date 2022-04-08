@@ -7,13 +7,10 @@ from olympics_engine.generator import create_scenario
 import argparse
 from olympics_engine.agent import *
 import time
-from scenario.running import *
-from scenario.table_hockey import *
-from scenario.football import *
-from scenario.wrestling import *
-from scenario.volleyball import *
-from scenario.billiard import *
-from scenario.curling import *
+
+from scenario import Running, table_hockey, football, wrestling, billiard, curling, curling_joint
+
+from AI_olympics import AI_Olympics
 
 import random
 import numpy as np
@@ -35,15 +32,19 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="curling", type= str,
-                        help = 'running/table-hockey/football/wrestling/billiard/curling')
+    parser.add_argument('--map', default="all", type= str,
+                        help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
 
-    for i in range(20):
-        Gamemap = create_scenario(args.map)
+    for i in range(1):
+        if args.map != 'all':
+            Gamemap = create_scenario(args.map)
         #game = table_hockey(Gamemap)
-        if args.map == 'table-hockey':
+        if args.map == 'running':
+            game = Running(Gamemap)
+            agent_num = 2
+        elif args.map == 'table-hockey':
             game = table_hockey(Gamemap)
             agent_num = 2
         elif args.map == 'football':
@@ -57,9 +58,17 @@ if __name__ == "__main__":
         #     agent_num = 2
         elif args.map == 'billiard':
             game = billiard(Gamemap)
-            agent_num = 1
+            agent_num = 2
         elif args.map == 'curling':
             game = curling(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'curling-joint':
+            game = curling_joint(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'all':
+            game = AI_Olympics(random_selection = False, minimap=True)
             agent_num = 2
 
         agent = random_agent()
@@ -80,14 +89,30 @@ if __name__ == "__main__":
 
             #action1 = [100,0]#agent.act(obs)
             #action2 = [100,0] #rand_agent.act(obs)
-            action1, action2 = agent.act(obs), rand_agent.act(obs)
-            action = [action1, action2] if (agent_num == 2) else [action1]
+            if agent_num == 2:
+                action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
+                # action1 = [200,20]
+                action1 =[200,1]
+                action = [action1, action2]
+            elif agent_num == 1:
+                action1 = agent.act(obs)
+                action = [action1]
+
+            # if step <= 5:
+            #     action = [[200,0]]
+            # else:
+            #     action = [[0,0]]
+            # action = [[200,action1[1]]]
 
             obs, reward, done, _ = game.step(action)
+            # print(f'reward = {reward}')
+            # print('obs = ', obs)
             # plt.imshow(obs[0])
             # plt.show()
             if RENDER:
                 game.render()
+
+            # time.sleep(0.02)
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)

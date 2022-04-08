@@ -1,13 +1,18 @@
 from olympics_engine.core import OlympicsBase
+from olympics_engine.viewer import Viewer, debug
 import pygame
 import sys
+import random
 import math
+
 
 def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
 class wrestling(OlympicsBase):
-    def __init__(self, map):
+    def __init__(self, map, minimap):
+        self.minimap_mode = minimap
+
         super(wrestling, self).__init__(map)
 
         self.gamma = 1  # v衰减系数
@@ -19,9 +24,30 @@ class wrestling(OlympicsBase):
         self.draw_obs = True
         self.show_traj = True
 
+        self.speed_cap=100
+
 
     def check_overlap(self):
         pass
+
+
+    def reset(self):
+        self.set_seed()
+        self.init_state()
+        self.step_cnt = 0
+        self.done = False
+
+        self.viewer = Viewer(self.view_setting)
+        self.display_mode=False
+
+
+        init_obs = self.get_obs()
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_init_obs = self._build_from_raw_obs(init_obs)
+        return output_init_obs
+
 
     def check_action(self, action_list):
         action = []
@@ -41,6 +67,8 @@ class wrestling(OlympicsBase):
 
         self.stepPhysics(actions_list, self.step_cnt)
 
+        self.speed_limit()
+
         self.cross_detect(previous_pos, self.agent_pos)
 
         self.step_cnt += 1
@@ -49,11 +77,38 @@ class wrestling(OlympicsBase):
         # obs_next = 1
         done = self.is_terminal()
         self.change_inner_state()
-        #check overlapping
-        #self.check_overlap()
 
-        #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
-        return obs_next, step_reward, done, ''
+        if self.minimap_mode:
+            self._build_minimap()
+
+        output_obs_next = self._build_from_raw_obs(obs_next)
+
+        return output_obs_next, step_reward, done, ''
+
+    def _build_from_raw_obs(self, obs):
+        if self.minimap_mode:
+            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+            return [{"agent_obs": obs[0], "minimap":image, "id":"team_0"},
+                    {"agent_obs": obs[1], "minimap": image, "id":"team_1"}]
+        else:
+            return [{"agent_obs":obs[0], "id":"team_0"}, {"agent_obs": obs[1], "id":"team_1"}]
+
+    def _build_minimap(self):
+        #need to render first
+        if not self.display_mode:
+            self.viewer.set_mode()
+            self.display_mode = True
+
+        self.viewer.draw_background()
+        for w in self.map['objects']:
+            self.viewer.draw_map(w)
+
+        self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+        if self.draw_obs:
+            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+
 
     def cross_detect(self, previous_pos, new_pos):
 
@@ -110,3 +165,54 @@ class wrestling(OlympicsBase):
 
         return False
 
+    def check_win(self):
+        if self.agent_list[0].finished and not (self.agent_list[1].finished):
+            return '1'
+        elif not (self.agent_list[0].finished) and self.agent_list[1].finished:
+            return '0'
+        else:
+            return '-1'
+
+
+    def render(self, info=None):
+
+        if self.minimap_mode:
+            pass
+        else:
+
+            if not self.display_mode:
+                self.viewer.set_mode()
+                self.display_mode=True
+
+            self.viewer.draw_background()
+            for w in self.map['objects']:
+                self.viewer.draw_map(w)
+
+            self.viewer.draw_ball(self.agent_pos, self.agent_list)
+
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+
+        if self.draw_obs:
+            if len(self.obs_list) > 0:
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
+
+        if self.show_traj:
+            self.get_trajectory()
+            self.viewer.draw_trajectory(self.agent_record, self.agent_list)
+
+        self.viewer.draw_direction(self.agent_pos, self.agent_accel)
+        #self.viewer.draw_map()
+
+        # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
+        debug('Step: ' + str(self.step_cnt), x=30)
+        if info is not None:
+            debug(info, x=100)
+
+
+        for event in pygame.event.get():
+            # 如果单击关闭窗口，则退出
+            if event.type == pygame.QUIT:
+                sys.exit()
+        pygame.display.flip()
+        #self.viewer.background.fill((255, 255, 255))

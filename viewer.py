@@ -112,49 +112,119 @@ class Viewer():
 
     def draw_obs(self, points, agent_list):
         for b in range(len(points)):
-            pygame.draw.lines(self.background, agent_list[b].color, 1, points[b], 2)
+            if points[b] is not None:
+                pygame.draw.lines(self.background, agent_list[b].color, 1, points[b], 2)
 
-    def draw_energy_bar(self, agent_list, height = 100):
-        #coord = [570 + 70 * i for i in range(len(agent_list))]
-        coord = [570 + 70 * i for i in range(len(agent_list))]
+    # def draw_energy_bar(self, agent_list, height = 100):
+    #     #coord = [570 + 70 * i for i in range(len(agent_list))]
+    #     coord = [570 + 70 * i for i in range(len(agent_list))]
+    #
+    #     for agent_idx in range(len(agent_list)):
+    #         if agent_list[agent_idx].type == 'ball':
+    #             continue
+    #         remaining_energy = agent_list[agent_idx].energy/agent_list[agent_idx].energy_cap
+    #         start_pos = [coord[agent_idx], height]
+    #         end_pos=  [coord[agent_idx] + 50*remaining_energy, height]
+    #         pygame.draw.line(self.background, color=COLORS[agent_list[agent_idx].color], start_pos=start_pos,
+    #                          end_pos=end_pos, width = 5)
+    #
 
-        for agent_idx in range(len(agent_list)):
-            if agent_list[agent_idx].type == 'ball':
-                continue
-            remaining_energy = agent_list[agent_idx].energy/agent_list[agent_idx].energy_cap
-            start_pos = [coord[agent_idx], height]
-            end_pos=  [coord[agent_idx] + 50*remaining_energy, height]
-            pygame.draw.line(self.background, color=COLORS[agent_list[agent_idx].color], start_pos=start_pos,
-                             end_pos=end_pos, width = 5)
 
 
+    # def draw_view(self, obs, agent_list, view_y=30):       #obs: [2, 100, 100] list
+    #
+    #     #draw agent 1, [50, 50], [50+width, 50], [50, 50+height], [50+width, 50+height]
+    #     count = 0
+    #     coord = 580
+    #
+    #     # coord = [580 + 70 * i for i in range(len(obs))]
+    #     for agent_idx in range(len(obs)):
+    #         matrix = obs[agent_idx]
+    #         if matrix is None:
+    #             continue
+    #
+    #         obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
+    #         y = view_y - obs_height
+    #         for row in matrix:
+    #             x = coord- obs_height/2
+    #             for item in row:
+    #                 pygame.draw.rect(self.background, COLORS[IDX_TO_COLOR[int(item)]], [x,y,grid_node_width, grid_node_height])
+    #                 x+= grid_node_width
+    #             y += grid_node_height
+    #
+    #         pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [coord+20, 55 + agent_list[agent_idx].r],
+    #                            agent_list[agent_idx].r, width=0)
+    #         pygame.draw.circle(self.background, COLORS["black"], [coord+10, 55 + agent_list[agent_idx].r], 2,
+    #                            width=0)
+    #
+    #         pygame.draw.lines(self.background, points =[[566+70*count,5],[566+70*count, 55], [566+50+70*count, 55], [566+50+70*count, 5]], closed=True,
+    #                           color = COLORS[agent_list[agent_idx].color], width=2)
+    #         count += 1
+    #         coord += 70
 
+    def draw_view(self, obs, agent_list, leftmost_x, upmost_y, gap = 70):
 
-    def draw_view(self, obs, agent_list):       #obs: [2, 100, 100] list
+        count = 0
+        x_start = leftmost_x
+        y_start = upmost_y
+        obs_height = None
 
-        #draw agent 1, [50, 50], [50+width, 50], [50, 50+height], [50+width, 50+height]
-        coord = [580 + 70 * i for i in range(len(obs))]
         for agent_idx in range(len(obs)):
             matrix = obs[agent_idx]
             if matrix is None:
                 continue
 
-            obs_weight, obs_height = matrix.shape[0], matrix.shape[1]
-            y = 30 - obs_height
+            obs_width, obs_height = matrix.shape[0], matrix.shape[1]
+            y = y_start
             for row in matrix:
-                x = coord[agent_idx]- obs_height/2
+                x = x_start
                 for item in row:
                     pygame.draw.rect(self.background, COLORS[IDX_TO_COLOR[int(item)]], [x,y,grid_node_width, grid_node_height])
-                    x+= grid_node_width
+                    x += grid_node_width
                 y += grid_node_height
 
-            pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r],
-                               agent_list[agent_idx].r, width=0)
-            pygame.draw.circle(self.background, COLORS["black"], [coord[agent_idx]+10, 55 + agent_list[agent_idx].r], 2,
-                               width=0)
+            center_x = x_start + ((obs_width)*grid_node_width)/2 #- agent_list[agent_idx].r
+            center_y = y_start + (obs_height)*grid_node_height + agent_list[agent_idx].r
 
-            pygame.draw.lines(self.background, points =[[566+70*agent_idx,5],[566+70*agent_idx, 55], [566+50+70*agent_idx, 55], [566+50+70*agent_idx, 5]], closed=True,
+            pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [center_x, center_y],
+                               agent_list[agent_idx].r, width=0)
+            pygame.draw.circle(self.background, COLORS['black'], [center_x, center_y],
+                               2, width=0)
+
+            pygame.draw.lines(self.background, points =[[x_start,y_start],
+                                                        [x_start, y_start+obs_height*grid_node_height],
+                                                        [x_start+obs_width*grid_node_width, y_start+obs_height*grid_node_height],
+                                                        [x_start+obs_width*grid_node_width, y_start]], closed=True,
                               color = COLORS[agent_list[agent_idx].color], width=2)
+
+            count += 1
+            x_start += gap
+
+        if obs_height is not None:
+            count2 = 0
+            x_start2 = leftmost_x
+            y_start2 = upmost_y + obs_height * grid_node_height + agent_list[agent_idx].r + 25
+
+            #draw energy bar
+            for agent_idx in range(len(agent_list)):
+                if agent_list[agent_idx].type == 'ball':
+                    continue
+
+
+                remaining_energy = agent_list[agent_idx].energy/agent_list[agent_idx].energy_cap
+                start_pos = [x_start2 , y_start2]
+                end_pos=  [x_start2 + obs_width*2*remaining_energy, y_start2]
+                pygame.draw.line(self.background, color=COLORS[agent_list[agent_idx].color], start_pos=start_pos,
+                                 end_pos=end_pos, width = 5)
+
+                debug(f"team {count2}", x = x_start2+obs_width*0.5,y = y_start2 + 15)
+
+                count2 += 1
+                x_start2 += gap
+
+
+
+
 
 
 pygame.init()
