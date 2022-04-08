@@ -23,7 +23,7 @@ class AI_Olympics:
                           {"name": 'table-hockey', "game": self.tablehockey_game},
                            {"name": 'football', "game": self.football_game},
                           {"name": 'wrestling', "game": self.wrestling_game}]
-
+        self.view_setting = self.running_game.view_setting
 
     def reset(self):
 
@@ -77,6 +77,9 @@ class AI_Olympics:
             return obs, self.final_reward, self.done, ''
         else:
             return obs, reward, self.done, ''
+
+    def is_terminal(self):
+        return self.done
 
     def render(self):
         self.current_game.render()
