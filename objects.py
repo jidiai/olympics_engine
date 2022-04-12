@@ -5,7 +5,7 @@ COLOR_TO_IDX = {
     'red': 7,
     'green': 1,
     'sky blue': 2,
-    'yellow': 3,
+    'orange': 3,
     'grey': 4,
     'purple': 5,
     'black': 6,

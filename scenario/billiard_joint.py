@@ -6,13 +6,14 @@ import pygame
 import sys
 import math
 import copy
+import random
 
 def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
-class billiard(OlympicsBase):
+class billiard_joint(OlympicsBase):
     def __init__(self, map):
-        super(billiard, self).__init__(map)
+        super(billiard_joint, self).__init__(map)
 
         self.gamma = 0.985  # v衰减系数
         self.wall_restitution = 0.8
@@ -23,13 +24,16 @@ class billiard(OlympicsBase):
         self.draw_obs = True
         self.show_traj = False
 
-        self.dead_agent_list = []
+        self.dead_agent_list = [[],[]]
         self.max_step = 500
         self.original_num_ball = len(self.agent_list)
-        self.white_ball_in = False
+        self.white_ball_in = [False, False]
 
-        self.white_ball_init_pos = [100,375]
-        self.white_ball_color = 'purple'
+        # self.purple_init_pos =  [[50, 200], [200, 350]]   #[ [x_min, xmax], [ymin, ymax]]     #[[100,325], [100,425]]
+        # self.green_init_pos = [[50,200], [400,550]]
+        self.white_ball_init_pos = [[100, 200,270, 365], [100,200,385,485]]       #xmin xmax ymin ymax
+
+        self.white_ball_color = ['purple','green']
         self.vis = 200
         self.vis_clear = 5
 
@@ -63,24 +67,24 @@ class billiard(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
-        self.white_ball_in = False
+        self.white_ball_in = [False, False]
         self.dead_agent_list = []
         self.total_reward = 0
 
-        self.hit_time_max = 10
-        self.now_hit = True
-        self.hit_time = 0
-        self.current_team = 0
+        # self.hit_time_max = 10
+        # self.now_hit = True
+        # self.hit_time = 0
+        # self.current_team = 0
         self.pre_num = len(self.agent_list)-1
         self.team_score = [0, 0]
         init_obs = self.get_obs()
 
-        self.player1_n_hit = 1
-        self.player2_n_hit = 0
+        # self.player1_n_hit = 1
+        # self.player2_n_hit = 0
 
         self.white_ball_index = 0
-        self.num_ball_left = 6
-        self.pre_num_ball_left = 6
+        self.num_ball_left = len(self.agent_list)-2
+        self.pre_num_ball_left = len(self.agent_list)-2
 
         self.minimap_mode = False
 
@@ -112,27 +116,89 @@ class billiard(OlympicsBase):
         action = []
 
         for agent_idx in range(len(self.agent_list)):
-            if self.agent_list[agent_idx].type == 'agent':
-                action.append(action_list[0])
-                _ = action_list.pop(0)
+            agent = self.agent_list[agent_idx]
+            if agent.type == 'agent':
+                if agent.color == 'purple':
+                    action.append(action_list[0])
+                elif agent.color == 'green':
+                    action.append(action_list[1])
+                else:
+                    raise NotImplementedError
+
+                # _ = action_list.pop(0)
             else:
                 action.append(None)
 
         return action
 
+    def _check_ball_overlap(self, init_pos, init_r):
+        for agent_idx, agent in enumerate(self.agent_list):
+            pos = self.agent_pos[agent_idx]
+            r = agent.r
+            distance = (pos[0]-init_pos[0])**2 + (pos[1]-init_pos[1])**2
+            if distance < (r + init_r)**2:
+                return True
+        return False
+
+
+    def reset_cure_ball(self):      #fixme : random reset, need to check for overlap as well
+
+        if self.white_ball_in[0] and self.white_ball_in[1]:
+            new_agent_idx = [0,1]
+        else:
+            if self.white_ball_in[0]:
+                new_agent_idx = [0]
+            elif self.white_ball_in[1]:
+                new_agent_idx = [1]
+            else:
+                raise NotImplementedError
+
+
+        for idx in new_agent_idx:
+
+            x_min, x_max, y_min, y_max = self.white_ball_init_pos[idx]
+
+            random_init_pos_x = random.uniform(x_min, x_max)
+            random_init_pos_y = random.uniform(y_min, y_max)
+
+            #check for overlap
+            while self._check_ball_overlap(init_pos=[random_init_pos_x, random_init_pos_y], init_r=15):
+                random_init_pos_x = random.uniform(x_min, x_max)
+                random_init_pos_y = random.uniform(y_min, y_max)
+
+
+            new_agent = Agent(mass = 1, r = 15, position = [random_init_pos_x, random_init_pos_y],
+                              color = self.white_ball_color[idx], vis = self.vis, vis_clear = self.vis_clear)
+            self.agent_list.append(new_agent)
+            self.white_ball_in[idx] = False
+
+            new_boundary = self.get_obs_boundaray([random_init_pos_x, random_init_pos_y], 15, self.vis)
+            self.obs_boundary_init.append(new_boundary)     #fixme: might has problem
+            self.agent_num += 1
+            self.agent_pos.append([random_init_pos_x, random_init_pos_y])
+            self.agent_v.append([0,0])
+            self.agent_accel.append([0,0])
+            init_obs = 0
+            self.agent_theta.append([init_obs])
+            self.agent_record.append([random_init_pos_x, random_init_pos_y])
+
+
+
+
+
     def step(self, actions_list):
 
-        actions_list = [actions_list[self.current_team]]
+        # actions_list = [actions_list[self.current_team]]
 
         previous_pos = self.agent_pos
 
-        actions_list = self.check_action(actions_list)
-        if self.now_hit:
-            input_action = actions_list
-            self.hit_time += 1
-            self.now_hit = (self.hit_time <= self.hit_time_max)
-        else:
-            input_action = [None for _ in range(len(self.agent_list))]
+        input_action = self.check_action(actions_list)
+        # if self.now_hit:
+        #     input_action = actions_list
+        #     self.hit_time += 1
+        #     self.now_hit = (self.hit_time <= self.hit_time_max)
+        # else:
+        #     input_action = [None for _ in range(len(self.agent_list))]
 
         self.stepPhysics(input_action, self.step_cnt)
 
@@ -156,48 +222,9 @@ class billiard(OlympicsBase):
         #self.check_overlap()
 
         if not game_done:
-            round_end, end_info = self._round_terminal()
-            if not round_end:
-                pass
-            else:
-                if end_info == "WHITE BALL IN":
-
-                    new_agent = Agent(mass = 1, r = 15, position = self.white_ball_init_pos,
-                                      color = self.white_ball_color, vis = self.vis,
-                                      vis_clear = self.vis_clear)
-                    self.white_ball_index = len(self.agent_list)
-                    self.agent_list.append(new_agent)
-                    new_boundary = self.get_obs_boundaray(self.white_ball_init_pos, 15, self.vis)
-                    self.obs_boundary_init.append(new_boundary)
-                    self.agent_num +=1
-                    self.agent_pos.append(self.white_ball_init_pos)
-                    self.agent_v.append([0,0])
-                    self.agent_accel.append([0,0])
-                    init_obs = 0
-                    self.agent_theta.append([init_obs])
-                    self.agent_record.append([self.white_ball_init_pos])
-                    self.white_ball_in = False
-
-                self.now_hit=True
-                self.hit_time=0
-
-                ball_in = (self.num_ball_left < self.pre_num_ball_left)
-                if not ball_in or end_info=='WHITE BALL IN':     #if no pot or white ball penalty
-                    self.current_team = 1 - self.current_team
-
-                    if self.current_team == 0:
-                        self.player1_n_hit += 1
-                    elif self.current_team == 1:
-                        self.player2_n_hit += 1
-                    else:
-                        raise NotImplementedError
-
-                self.pre_num_ball_left = self.num_ball_left
-
-                obs_next = self.get_obs()
-                # round_score = len(self.agent_list)-self.pre_num
-                # output_step_reward[self.current_team] += round_score *10        #reward for scoring
-
+            #reset white ball
+            if np.logical_or(self.white_ball_in[0], self.white_ball_in[1]):
+                self.reset_cure_ball()
 
 
 
@@ -275,7 +302,11 @@ class billiard(OlympicsBase):
                     l = point2point(agent_new_pos, center)
                     if abs(l - arc_r) <= agent.r:
                         if agent.type == 'agent':
-                            self.white_ball_in=True
+                            if agent.color == 'purple':
+                                self.white_ball_in[0] = True
+                            elif agent.color == 'green':
+                                self.white_ball_in[1] = True
+
                         agent.color = 'blue'
                         agent.finished = True
                         agent.alive = False
@@ -306,16 +337,23 @@ class billiard(OlympicsBase):
 
     def is_terminal(self):
 
-        if len(self.agent_list) == 1:       #all ball has been scored
+        if self.step_cnt >= self.max_step:
             return True
 
 
-        if (self.player1_n_hit + self.player2_n_hit == self.max_n_hit*2):  #use up all the hit chance
-            round_end, _ = self._round_terminal()
-            if round_end:
-                return True
 
-        return False
+
+
+        # if len(self.agent_list) == 1:       #all ball has been scored
+        #     return True
+        #
+        #
+        # if (self.player1_n_hit + self.player2_n_hit == self.max_n_hit*2):  #use up all the hit chance
+        #     round_end, _ = self._round_terminal()
+        #     if round_end:
+        #         return True
+
+        # return False
 
     def get_reward(self):
         # if len(self.agent_list) == 1 and not self.white_ball_in:
@@ -348,31 +386,34 @@ class billiard(OlympicsBase):
 
 
     def _build_from_raw_reward(self):
-        step_reward = self.get_reward()
-        round_reawrd = self.get_round_reward()      #move it to if not done?
+        #step_reward = self.get_reward()
+        # round_reawrd = self.get_round_reward()      #move it to if not done?
         _output_reward = {}
-        _output_reward[f"team_{self.current_team}"] = {"step_reward": step_reward, "round_reward": round_reawrd}
-        _output_reward[f"team_{1-self.current_team}"] = None
-        self.team_score[self.current_team] += round_reawrd['total'] if round_reawrd is not None else 0
+        # _output_reward[f"team_{self.current_team}"] = {"step_reward": step_reward, "round_reward": round_reawrd}
+        # _output_reward[f"team_{1-self.current_team}"] = None
+        # self.team_score[self.current_team] += round_reawrd['total'] if round_reawrd is not None else 0
 
-        return _output_reward
+        # return _output_reward
 
     def _build_from_raw_obs(self, next_obs):
         _output_obs_next = [{},{}]
-        next_obs = [x for x in next_obs if x is not None]
-        if len(next_obs) == 0:
-            next_obs = [np.zeros((40,40))-1]
 
-        if self.minimap_mode:
-            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
 
-        _output_obs_next[self.current_team]["agent_obs"] = next_obs
-        if self.minimap_mode:
-            _output_obs_next[self.current_team]["minimap"] = image
 
-        _output_obs_next[1-self.current_team]["agent_obs"] = [np.zeros_like(i)-1 for i in next_obs]
-        if self.minimap_mode:
-            _output_obs_next[1-self.current_team]["minimap"] = None
+        # next_obs = [x for x in next_obs if x is not None]
+        # if len(next_obs) == 0:
+        #     next_obs = [np.zeros((40,40))-1]
+        #
+        # if self.minimap_mode:
+        #     image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
+        #
+        # _output_obs_next[self.current_team]["agent_obs"] = next_obs
+        # if self.minimap_mode:
+        #     _output_obs_next[self.current_team]["minimap"] = image
+        #
+        # _output_obs_next[1-self.current_team]["agent_obs"] = [np.zeros_like(i)-1 for i in next_obs]
+        # if self.minimap_mode:
+        #     _output_obs_next[1-self.current_team]["minimap"] = None
 
         # _output_obs_next[self.current_team] = next_obs
         # _output_obs_next[1-self.current_team] = [np.zeros_like(i)-1 for i in next_obs]
@@ -400,7 +441,7 @@ class billiard(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=580, upmost_y=10)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
 
         if self.show_traj:
             self.get_trajectory()
@@ -420,7 +461,7 @@ class billiard(OlympicsBase):
         # debug(f" Player 0 hit left = {self.max_n_hit-self.player1_n_hit}, Player 1 hit left = {self.max_n_hit-self.player2_n_hit}",
         #       x = 300, y = 100)
 
-        self.draw_table()
+        # self.draw_table()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
