@@ -83,6 +83,17 @@ class billiard_joint(OlympicsBase):
         # self.player2_n_hit = 0
 
         self.white_ball_index = 0
+
+        self.ball_left = [3, 3]
+        # self.purple_ball_left = 3
+        # self.green_ball_left = 3
+        self.purple_ball_color = 'sky blue'
+        self.green_ball_color = 'orange'
+        self.nonzero_reward_list = []
+        self.output_reward = [0,0]
+        self.score = [0,0]
+        self.total_score = [0,0]
+
         self.num_ball_left = len(self.agent_list)-2
         self.pre_num_ball_left = len(self.agent_list)-2
 
@@ -188,17 +199,9 @@ class billiard_joint(OlympicsBase):
 
     def step(self, actions_list):
 
-        # actions_list = [actions_list[self.current_team]]
 
-        previous_pos = self.agent_pos
 
         input_action = self.check_action(actions_list)
-        # if self.now_hit:
-        #     input_action = actions_list
-        #     self.hit_time += 1
-        #     self.now_hit = (self.hit_time <= self.hit_time_max)
-        # else:
-        #     input_action = [None for _ in range(len(self.agent_list))]
 
         self.stepPhysics(input_action, self.step_cnt)
 
@@ -210,14 +213,19 @@ class billiard_joint(OlympicsBase):
 
         self.step_cnt += 1
 
-        output_reward = self._build_from_raw_reward()
-
 
         obs_next = self.get_obs()
 
         self.change_inner_state()
 
+
+        # pre_ball_left = self.ball_left
         self.clear_agent()
+
+
+        self.output_reward = self._build_from_raw_reward()
+
+
         #check overlapping
         #self.check_overlap()
 
@@ -248,7 +256,7 @@ class billiard_joint(OlympicsBase):
 
 
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
-        return output_obs_next, output_reward, game_done, ''
+        return output_obs_next, self.output_reward, game_done, ''
 
     def _round_terminal(self):      #when all ball stop moving
 
@@ -316,9 +324,21 @@ class billiard_joint(OlympicsBase):
         if len(self.dead_agent_list) == 0:
             return
         index_add_on = 0
+
+        self.score = [0,0]
         for idx in self.dead_agent_list:
             if self.agent_list[idx-index_add_on].name != 'agent':
                 self.num_ball_left -= 1
+            if self.agent_list[idx - index_add_on].type == 'ball':
+                color = self.agent_list[idx - index_add_on].original_color
+                if color == self.purple_ball_color:
+                    self.ball_left[0] -= 1
+                    self.score[0] += 1
+                    # self.purple_ball_left -= 1
+                elif color == self.green_ball_color:
+                    self.ball_left[1] -= 1
+                    self.score[1] += 1
+                    # self.green_ball_left -= 1
             #     pass
             # else:
             del self.agent_list[idx-index_add_on]
@@ -341,6 +361,16 @@ class billiard_joint(OlympicsBase):
             return True
 
 
+        if self.ball_left[0] <= 0 or self.ball_left[1] <= 0:
+            return True
+
+        return False
+
+
+        # if self.step_cnt >= self.max_step:
+        #     return True
+
+
 
 
 
@@ -353,19 +383,21 @@ class billiard_joint(OlympicsBase):
         #     if round_end:
         #         return True
 
-        # return False
+        # return Fals
 
     def get_reward(self):
         # if len(self.agent_list) == 1 and not self.white_ball_in:
         #     return [500.]
 
-        reward = [0.]
-        if not self.white_ball_in:
-            reward[0] += len(self.dead_agent_list)*self.pot_reward
-        else:
-            for i in self.dead_agent_list:
-                if self.agent_list[i].type == 'agent':      #penalise only once
-                    reward[0] += self.white_penalty
+        # reward = [0., 0.]
+        reward = [int(i)*self.white_penalty for i in self.white_ball_in]
+        for i in range(len(reward)):
+            reward[i] += (self.score[i])*self.pot_reward
+
+        self.score = [0,0]
+        # if not self.white_ball_in:
+        self.total_score[0] += reward[0]
+        self.total_score[1] += reward[1]
 
         return reward
 
@@ -386,8 +418,10 @@ class billiard_joint(OlympicsBase):
 
 
     def _build_from_raw_reward(self):
+        step_reward = self.get_reward()
         #step_reward = self.get_reward()
         # round_reawrd = self.get_round_reward()      #move it to if not done?
+        return step_reward
         _output_reward = {}
         # _output_reward[f"team_{self.current_team}"] = {"step_reward": step_reward, "round_reward": round_reawrd}
         # _output_reward[f"team_{1-self.current_team}"] = None
@@ -396,7 +430,25 @@ class billiard_joint(OlympicsBase):
         # return _output_reward
 
     def _build_from_raw_obs(self, next_obs):
-        _output_obs_next = [{},{}]
+        _output_obs_next = [0,0]
+
+        for i,j in enumerate(self.agent_list):      #fixme: the transition of obs when cure ball is in need re-checking
+            if j.type == 'agent':
+                if j.color == 'purple':
+                    idx = 0
+                elif j.color == 'green':
+                    idx = 1
+
+                try:
+                    _output_obs_next[idx] = next_obs[i]
+                except IndexError:
+                    n = int(j.visibility/j.visibility_clear)
+                    _output_obs_next[idx] = np.zeros((n,n)) -1
+                    # _output_obs_next[0] = next_obs[i]
+                # elif j.color == 'green':
+                #     _output_obs_next[1] = next_obs[i]
+
+        return _output_obs_next
 
 
 
@@ -455,7 +507,10 @@ class billiard_joint(OlympicsBase):
         if info is not None:
             debug(info, x=100)
 
-        debug("No. of balls left: {}".format(self.agent_num-1), x = 100)
+        # debug("No. of balls left: {}".format(self.agent_num-1), x = 100)
+        debug(f"Purple ball left = {self.ball_left[0]}, total score = {self.total_score[0]}", c='purple',x=  100, y =10)
+        debug(f"Green ball left = {self.ball_left[1]}, total score = {self.total_score[1]}", c='green',x = 100, y=30)
+
         # debug(f"-----------Current team {self.current_team}", x = 250)
         # debug('Current player:', x = 480, y = 145)
         # debug(f" Player 0 hit left = {self.max_n_hit-self.player1_n_hit}, Player 1 hit left = {self.max_n_hit-self.player2_n_hit}",
