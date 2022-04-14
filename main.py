@@ -8,7 +8,7 @@ import argparse
 from olympics_engine.agent import *
 import time
 
-from scenario import Running, table_hockey, football, wrestling, billiard, curling, curling_joint, billiard_joint
+from scenario import Running, table_hockey, football, wrestling, billiard, curling, billiard_joint
 
 from AI_olympics import AI_Olympics
 
@@ -63,9 +63,6 @@ if __name__ == "__main__":
             game = curling(Gamemap)
             agent_num = 2
 
-        elif args.map == 'curling-joint':
-            game = curling_joint(Gamemap)
-            agent_num = 2
 
         elif args.map == 'billiard-joint':
             game = billiard_joint(Gamemap)
