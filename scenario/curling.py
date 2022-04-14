@@ -90,9 +90,12 @@ def distance_to_line(l1, l2, pos):
 
 class curling(OlympicsBase):
     def __init__(self, map):
+        self.original_tau = 0.1
+        self.tau = self.original_tau
+        self.faster = 4
+
         super(curling, self).__init__(map)
 
-        self.tau = 0.1
         self.wall_restitution = 1
         self.circle_restitution = 1
         self.print_log = False
@@ -100,8 +103,8 @@ class curling(OlympicsBase):
         self.show_traj = False
         self.start_pos = [300,150]
         self.start_init_obs = 90
-        self.max_n = 2
-        self.round_max_step = 100
+        self.max_n = 3
+        self.round_max_step = 70
 
         self.vis=200
         self.vis_clear = 5
@@ -120,6 +123,7 @@ class curling(OlympicsBase):
 
         self.release = False
         self.gamma = 0.98
+        self.tau = self.original_tau
 
         self.num_purple = 1
         self.num_green = 0
@@ -204,6 +208,7 @@ class curling(OlympicsBase):
 
         self.release = False
         self.gamma = 0.98
+        self.tau = self.original_tau
 
         self.round_step = 0
 
@@ -235,7 +240,8 @@ class curling(OlympicsBase):
                         # print('agent type = ', agent.type)
                         agent.alive = False
                         #agent.color = 'red'
-                        self.gamma = 0.95            #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+                        self.gamma = 0.95**self.faster           #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+                        self.tau *= self.faster
                         self.release = True
                         self.round_countdown = self.round_max_step-self.round_step
                     # if the ball hasnot pass the cross, the relase will be True again in the new round

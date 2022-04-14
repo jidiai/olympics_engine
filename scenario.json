@@ -1561,7 +1561,7 @@
       "objects": {
         "component1": {
           "initial_position": [
-            150,
+            200,
             150
           ],
           "mass": 1,
@@ -1572,7 +1572,7 @@
         },
         "component2": {
           "initial_position": [
-            450,
+            400,
             150
           ],
           "mass": 1,

@@ -32,7 +32,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="billiard-joint", type= str,
+    parser.add_argument('--map', default="curling", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
@@ -96,7 +96,10 @@ if __name__ == "__main__":
             if agent_num == 2:
                 action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
                 # action1 = [200,20]
-                # action1 =[200,1]
+                # action1 =[50,1]
+                # action2 = [50,-1]
+
+
                 action = [action1, action2]
             elif agent_num == 1:
                 action1 = agent.act(obs)
@@ -109,7 +112,7 @@ if __name__ == "__main__":
             # action = [[200,action1[1]]]
 
             obs, reward, done, _ = game.step(action)
-            # print(f'reward = {reward}')
+            print(f'reward = {reward}')
             # print('obs = ', obs)
             # plt.imshow(obs[0])
             # plt.show()

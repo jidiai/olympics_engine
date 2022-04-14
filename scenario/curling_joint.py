@@ -256,20 +256,18 @@ class curling_joint(OlympicsBase):
     def check_action(self, action_list):
         action = []
         for agent_idx in range(len(self.agent_list)):
-            if self.agent_list[agent_idx].type == 'agent':
-                if self.agent_list[agent_idx].color == 'purple':
-                    action.append(action_list[0] if not self.release[0] else None)
-                elif self.agent_list[agent_idx].color == 'green':
-                    action.append(action_list[1] if not self.release[1] else None)
+            agent = self.agent_list[agent_idx]
+            if agent.type == 'agent':
+                if agent.color == 'purple':
+                    action.append(action_list[0])
+                elif agent.color == 'green':
+                    action.append(action_list[1])
                 else:
                     raise NotImplementedError
-
-                _ = action_list.pop(0)
             else:
                 action.append(None)
 
         return action
-
 
 
     def step(self, actions_list):
@@ -529,14 +527,14 @@ class curling_joint(OlympicsBase):
 
 
         if self.draw_obs:
-            if self.current_team == 0:
-                # self.viewer.draw_view(self.obs_list, [self.agent_list[-1]])
-                # self.viewer.draw_curling_view(self.purple_rock,self.green_rock,self.obs_list, [self.agent_list[-1]])
-                self._draw_curling_view(self.obs_list, self.agent_list)
-            else:
-                # self.viewer.draw_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
-                # self.viewer.draw_curling_view(self.purple_rock, self.green_rock, [None, self.obs_list[0]], [None, self.agent_list[-1]])
-                self._draw_curling_view(self.obs_list, self.agent_list)
+        #     if self.current_team == 0:
+        #         # self.viewer.draw_view(self.obs_list, [self.agent_list[-1]])
+        #         # self.viewer.draw_curling_view(self.purple_rock,self.green_rock,self.obs_list, [self.agent_list[-1]])
+        #         self._draw_curling_view(self.obs_list, self.agent_list)
+        #     else:
+        #         # self.viewer.draw_view([None, self.obs_list[0]], [None, self.agent_list[-1]])
+        #         # self.viewer.draw_curling_view(self.purple_rock, self.green_rock, [None, self.obs_list[0]], [None, self.agent_list[-1]])
+        #         self._draw_curling_view(self.obs_list, self.agent_list)
 
 
             debug('Agent 0', x=570, y=110, c='purple')

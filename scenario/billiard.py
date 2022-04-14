@@ -12,13 +12,17 @@ def point2point(p1, p2):
 
 class billiard(OlympicsBase):
     def __init__(self, map):
+        self.original_tau = 0.1
+        self.faster = 3
+        self.tau = self.original_tau
+        self.original_gamma = 0.985
+
         super(billiard, self).__init__(map)
 
-        self.gamma = 0.985  # v衰减系数
+        self.gamma = 0.985
         self.wall_restitution = 0.8
         self.circle_restitution = 1
         self.print_log = False
-        self.tau = 0.1
 
         self.draw_obs = True
         self.show_traj = False
@@ -41,6 +45,9 @@ class billiard(OlympicsBase):
         self.total_reward = 0
 
     def reset(self):
+        self.tau = self.original_tau
+        self.gamma = self.original_gamma
+
         self.agent_num = 0
         self.agent_list = []
         self.agent_init_pos = []
@@ -128,11 +135,16 @@ class billiard(OlympicsBase):
 
         actions_list = self.check_action(actions_list)
         if self.now_hit:
+            self.tau = self.original_tau
+            self.gamma = self.original_gamma
+
             input_action = actions_list
             self.hit_time += 1
             self.now_hit = (self.hit_time <= self.hit_time_max)
         else:
             input_action = [None for _ in range(len(self.agent_list))]
+            self.tau = self.original_tau*self.faster
+            self.gamma = self.original_gamma**self.faster
 
         self.stepPhysics(input_action, self.step_cnt)
 
