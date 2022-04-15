@@ -1,4 +1,5 @@
 from scenario.running import Running
+from scenario.running_competition import Running_competition
 from scenario.table_hockey import table_hockey
 from scenario.football import football
 from scenario.wrestling import wrestling

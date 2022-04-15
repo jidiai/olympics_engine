@@ -7,8 +7,10 @@ sys.path.append(str(father_path))
 
 module = __import__("objects")
 
-def create_scenario(scenario_name):
-    file_path = os.path.join(os.path.dirname(__file__), 'scenario.json')
+def create_scenario(scenario_name, file_path = None):
+    if file_path is None:
+        file_path = os.path.join(os.path.dirname(__file__), 'scenario.json')
+
     with open(file_path) as f:
         conf = json.load(f)[scenario_name]
 

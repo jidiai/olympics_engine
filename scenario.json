@@ -199,6 +199,25 @@
       "edge": 50
     }
   },
+  "running-competition": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.98,
+      "wall_restitution": 0.5,
+      "circle_restitution": 0.5,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
+    "view": {
+      "width": 600,
+      "height": 600,
+      "edge": 50
+    }
+  },
   "table-hockey": {
     "env_cfg": {
       "tau": 0.1,
