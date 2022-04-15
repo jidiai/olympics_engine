@@ -8,7 +8,7 @@ import argparse
 from olympics_engine.agent import *
 import time
 
-from scenario import Running, table_hockey, football, wrestling, billiard, curling, curling_joint, billiard_joint, curling_long, curling_competition
+from scenario import Running, table_hockey, football, wrestling, billiard, curling, billiard_joint, curling_long, curling_competition
 
 from AI_olympics import AI_Olympics
 
@@ -32,7 +32,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="curling-competition", type= str,
+    parser.add_argument('--map', default="all", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
