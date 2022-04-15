@@ -10,21 +10,21 @@ def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
 class wrestling(OlympicsBase):
-    def __init__(self, map, minimap):
-        self.minimap_mode = minimap
+    def __init__(self, map):
+        self.minimap_mode = map['obs_cfg']['minimap']
 
         super(wrestling, self).__init__(map)
 
-        self.gamma = 1  # v衰减系数
-        self.wall_restitution = 1
-        self.circle_restitution = 1
+        self.gamma = map['env_cfg']['gamma']
+        self.wall_restitution = map['env_cfg']['wall_restitution']
+        self.circle_restitution = map['env_cfg']['circle_restitution']
+        self.tau = map['env_cfg']['tau']
+        self.speed_cap = map['env_cfg']['speed_cap']
+        self.max_step = map['env_cfg']['max_step']
         self.print_log = False
-        self.tau = 0.1
 
         self.draw_obs = True
         self.show_traj = True
-
-        self.speed_cap=100
 
 
     def check_overlap(self):

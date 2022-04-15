@@ -13,19 +13,25 @@ def point2point(p1, p2):
 
 class billiard_joint(OlympicsBase):
     def __init__(self, map):
+        self.minimap_mode = map['obs_cfg']['minimap']
+
         super(billiard_joint, self).__init__(map)
 
-        self.gamma = 0.985  # v衰减系数
-        self.wall_restitution = 0.8
-        self.circle_restitution = 1
+        self.tau = map['env_cfg']['tau']
+        self.gamma = map['env_cfg']['gamma']
+        self.wall_restitution = map['env_cfg']['wall_restitution']
+        self.circle_restitution = map['env_cfg']['circle_restitution']
+        self.max_step = map['env_cfg']['max_step']
+        self.max_n_hit = map['env_cfg']['max_n_hit']
+        self.white_penalty = map['env_cfg']['white_penalty']
+        self.pot_reward = map['env_cfg']['pot_reward']
+
         self.print_log = False
-        self.tau = 0.1
 
         self.draw_obs = True
         self.show_traj = False
 
         self.dead_agent_list = [[],[]]
-        self.max_step = 500
         self.original_num_ball = len(self.agent_list)
         self.white_ball_in = [False, False]
 
@@ -39,8 +45,6 @@ class billiard_joint(OlympicsBase):
 
         self.max_n_hit = 3
 
-        self.white_penalty = -10
-        self.pot_reward = 1
 
         self.total_reward = 0
 

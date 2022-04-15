@@ -14,10 +14,10 @@ class AI_Olympics:
         self.random_selection = random_selection
         self.minimap_mode = minimap
 
-        self.running_game = Running(create_scenario("running"), minimap=self.minimap_mode)
-        self.tablehockey_game = table_hockey(create_scenario("table-hockey"), minimap=self.minimap_mode)
-        self.football_game = football(create_scenario('football'), minimap=self.minimap_mode)
-        self.wrestling_game = wrestling(create_scenario('wrestling'), minimap=self.minimap_mode)
+        self.running_game = Running(create_scenario("running"))
+        self.tablehockey_game = table_hockey(create_scenario("table-hockey"))
+        self.football_game = football(create_scenario('football'))
+        self.wrestling_game = wrestling(create_scenario('wrestling'))
 
         self.game_pool = [{"name": 'running', 'game': self.running_game},
                           {"name": 'table-hockey', "game": self.tablehockey_game},

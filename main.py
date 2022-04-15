@@ -8,7 +8,7 @@ import argparse
 from olympics_engine.agent import *
 import time
 
-from scenario import Running, table_hockey, football, wrestling, billiard, curling, billiard_joint
+from scenario import Running, table_hockey, football, wrestling, billiard, curling, billiard_joint, curling_long, curling_competition
 
 from AI_olympics import AI_Olympics
 
@@ -32,7 +32,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="curling", type= str,
+    parser.add_argument('--map', default="all", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
@@ -63,9 +63,20 @@ if __name__ == "__main__":
             game = curling(Gamemap)
             agent_num = 2
 
+        elif args.map == 'curling-joint':
+            game = curling_joint(Gamemap)
+            agent_num = 2
 
         elif args.map == 'billiard-joint':
             game = billiard_joint(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'curling-long':
+            game = curling_long(Gamemap)
+            agent_num = 2
+
+        elif args.map == 'curling-competition':
+            game = curling_competition(Gamemap)
             agent_num = 2
 
         elif args.map == 'all':
@@ -92,7 +103,8 @@ if __name__ == "__main__":
             #action2 = [100,0] #rand_agent.act(obs)
             if agent_num == 2:
                 action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
-                # action1 = [200,20]
+                action1 = [100,0]
+
                 # action1 =[50,1]
                 # action2 = [50,-1]
 
