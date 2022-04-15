@@ -60,22 +60,26 @@ from olympics_engine.tools.func import closest_point, distance_to_line
 
 class curling_competition(OlympicsBase):
     def __init__(self, map):
-        self.original_tau = 0.1
+        self.original_tau = map['env_cfg']['tau']
         self.tau = self.original_tau
-        self.faster = 3
+        self.faster = map['env_cfg']['faster']
+        self.original_gamma = map['env_cfg']['gamma']
+        self.field_gamma = map['env_cfg']['field_gamma']
 
         super(curling_competition, self).__init__(map)
 
         # self.tau = 0.1
-        self.wall_restitution = 1
-        self.circle_restitution = 1
+        self.wall_restitution = map['env_cfg']['wall_restitution']
+        self.circle_restitution = map['env_cfg']['circle_restitution']
+        self.max_n = map['env_cfg']['max_n']
+        self.round_max_step = map['env_cfg']['round_max_step']
+
         self.print_log = False
         self.draw_obs = True
         self.show_traj = False
         self.start_pos = [300,150]
         self.start_init_obs = 90
-        self.max_n = 4
-        self.round_max_step = 100
+
 
         self.vis=300
         self.vis_clear = 10
@@ -90,8 +94,8 @@ class curling_competition(OlympicsBase):
     def reset(self, reset_game=False):
         self.release = False
 
-        self.top_area_gamma = 0.98
-        self.down_area_gamma = 0.95 #random.uniform(0.9, 0.95)
+        self.top_area_gamma = self.original_gamma
+        self.down_area_gamma = self.field_gamma
 
         self.gamma = self.top_area_gamma
         self.tau = self.original_tau
@@ -226,7 +230,7 @@ class curling_competition(OlympicsBase):
                         agent.alive = False
                         #agent.color = 'red'
                         self.tau = self.original_tau * self.faster
-                        self.gamma = self.down_area_gamma**self.faster            #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+                        self.gamma = 1-(1-self.down_area_gamma)*self.faster            #this will change the gamma for the whole env, so need to change if dealing with multi-agent
                         self.release = True
                         self.round_countdown = self.round_max_step-self.round_step
                     # if the ball hasnot pass the cross, the relase will be True again in the new round

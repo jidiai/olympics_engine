@@ -1,5 +1,17 @@
 {
   "running": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.98,
+      "wall_restitution": 0.5,
+      "circle_restitution": 0.5,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 3,
       "objects": {
@@ -188,6 +200,17 @@
     }
   },
   "table-hockey": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 1,
+      "wall_restitution": 0.8,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "speed_cap": 100
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 5,
       "objects": {
@@ -339,6 +362,17 @@
     }
   },
   "football": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 1,
+      "wall_restitution": 0.8,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "speed_cap": 100
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 5,
       "objects": {
@@ -666,6 +700,17 @@
     }
   },
   "wrestling": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 1,
+      "wall_restitution": 1,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "speed_cap": 100
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "cross": {
       "num": 2,
       "objects": {
@@ -769,98 +814,23 @@
       ]
     }
   },
-  "volleyball": {
-    "wall": {
-      "num": 5,
-      "objects": {
-        "component1": {
-          "initial_position": [
-            [
-              50,
-              200
-            ],
-            [
-              50,
-              550
-            ]
-          ],
-          "color": "black"
-        },
-        "component2": {
-          "initial_position": [
-            [
-              50,
-              550
-            ],
-            [
-              600,
-              550
-            ]
-          ],
-          "color": "black"
-        },
-        "component3": {
-          "initial_position": [
-            [
-              600,
-              200
-            ],
-            [
-              600,
-              550
-            ]
-          ],
-          "color": "black"
-        },
-        "component4": {
-          "initial_position": [
-            [
-              325,
-              450
-            ],
-            [
-              325,
-              550
-            ]
-          ],
-          "color": "black"
-        }
-      }
-    },
-    "agent": {
-      "num": 2,
-      "objects": {
-        "component1": {
-          "initial_position": [
-            200,
-            500
-          ],
-          "mass": 1,
-          "radius": 20,
-          "color": "purple"
-        },
-        "component2": {
-          "initial_position": [
-            500,
-            500
-          ],
-          "mass": 1,
-          "radius": 20,
-          "color": "green"
-        }
-      }
-    },
-    "view": {
-      "width": 600,
-      "height": 600,
-      "edge": 50,
-      "init_obs": [
-        90,
-        -90
-      ]
-    }
-  },
   "billiard": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.985,
+      "wall_restitution": 0.8,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500,
+      "faster": 4,
+      "max_n_hit": 3,
+      "white_penalty": -10,
+      "pot_reward": 1
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 5,
       "objects": {
@@ -1049,6 +1019,21 @@
     }
   },
   "billiard-joint": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.985,
+      "wall_restitution": 0.8,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500,
+      "max_n_hit": 3,
+      "white_penalty": -10,
+      "pot_reward": 1
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 5,
       "objects": {
@@ -1248,6 +1233,22 @@
     }
   },
   "curling": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.98,
+      "wall_restitution": 1,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500,
+      "faster": 1,
+      "field_gamma": 0.95,
+      "round_max_step": 70,
+      "max_n": 3
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 4,
       "objects": {
@@ -1591,6 +1592,22 @@
     }
   },
   "curling-long": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.98,
+      "wall_restitution": 1,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500,
+      "faster": 5,
+      "field_gamma": 0.95,
+      "round_max_step": 70,
+      "max_n": 3
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 4,
       "objects": {
@@ -1757,6 +1774,22 @@
     }
   },
   "curling-competition": {
+    "env_cfg": {
+      "tau": 0.1,
+      "gamma": 0.98,
+      "wall_restitution": 1,
+      "circle_restitution": 1,
+      "max_step": 500,
+      "energy_recover_rate": 200,
+      "speed_cap": 500,
+      "faster": 5,
+      "field_gamma": 0.95,
+      "round_max_step": 100,
+      "max_n": 4
+    },
+    "obs_cfg": {
+      "minimap": false
+    },
     "wall": {
       "num": 4,
       "objects": {

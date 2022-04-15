@@ -3,7 +3,7 @@ COLORS = {
     'red': [255, 0, 0],
     'green': [0, 255, 0],
     'blue': [0, 0, 255],
-    'orange': [255, 255, 0],
+    'orange': [255, 127, 0],
     'grey':  [176,196,222],
     'purple': [160, 32, 240],
     'black': [0, 0, 0],
@@ -36,15 +36,6 @@ IDX_TO_COLOR = {
     8: 'blue'
 }
 
-# Map of object type to integers in output (partial) observation
-# OBJECT_TO_IDX = {
-#     'agent' : 0
-#     'agent2': 1,
-#     'cross': 4,
-#     'agent1': 5,
-#     'wall': 6,
-#     'goal': 7,
-# }
 
 
 

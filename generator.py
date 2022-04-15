@@ -18,7 +18,14 @@ def create_scenario(scenario_name):
     GameMap["view"] = conf["view"]
 
     for type in conf:
-        if (type == "wall") or (type == "cross"):
+        if type == 'env_cfg':
+            env_cfg_dict = conf[type]
+            GameMap["env_cfg"] = env_cfg_dict
+        elif type == 'obs_cfg':
+            obs_cfg_dict = conf[type]
+            GameMap["obs_cfg"] = obs_cfg_dict
+
+        elif (type == "wall") or (type == "cross"):
             #print("!!", conf[type]["objects"])
             for key, value in conf[type]["objects"].items():
                 GameMap["objects"].append(getattr(module, type.capitalize())

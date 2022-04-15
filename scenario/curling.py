@@ -62,21 +62,26 @@ from olympics_engine.tools.func import closest_point, distance_to_line
 
 class curling(OlympicsBase):
     def __init__(self, map):
-        self.original_tau = 0.1
-        self.tau = self.original_tau
-        self.faster = 4
+        self.minimap_mode = map['obs_cfg']['minimap']
+        self.original_tau = map['env_cfg']['tau']
+        self.original_gamma = map['env_cfg']['gamma']
 
         super(curling, self).__init__(map)
 
-        self.wall_restitution = 1
-        self.circle_restitution = 1
+        self.tau = self.original_tau
+        self.faster = map['env_cfg']['faster']
+
+        self.wall_restitution = map['env_cfg']['wall_restitution']
+        self.circle_restitution = map['env_cfg']['circle_restitution']
+        self.round_max_step = map['env_cfg']['round_max_step']
+        self.max_n = map['env_cfg']['max_n']
+        self.field_gamma = map['env_cfg']["field_gamma"]
+
         self.print_log = False
         self.draw_obs = True
         self.show_traj = False
         self.start_pos = [300,150]
         self.start_init_obs = 90
-        self.max_n = 3
-        self.round_max_step = 70
 
         self.vis=200
         self.vis_clear = 5
@@ -94,7 +99,7 @@ class curling(OlympicsBase):
         self.crown_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/crown.png"))
 
         self.release = False
-        self.gamma = 0.98
+        self.gamma = self.original_gamma
         self.tau = self.original_tau
 
         self.num_purple = 1
@@ -129,8 +134,6 @@ class curling(OlympicsBase):
 
         self.current_team = 0
         obs = self.get_obs()
-
-        self.minimap_mode = True
 
         if self.minimap_mode:
             self._build_minimap()
@@ -179,7 +182,7 @@ class curling(OlympicsBase):
         self.agent_record.append([self.agent_init_pos[-1]])
 
         self.release = False
-        self.gamma = 0.98
+        self.gamma = self.original_gamma
         self.tau = self.original_tau
 
         self.round_step = 0
@@ -212,7 +215,7 @@ class curling(OlympicsBase):
                         # print('agent type = ', agent.type)
                         agent.alive = False
                         #agent.color = 'red'
-                        self.gamma = 0.95**self.faster           #this will change the gamma for the whole env, so need to change if dealing with multi-agent
+                        self.gamma = 1-(1-self.field_gamma)*self.faster
                         self.tau *= self.faster
                         self.release = True
                         self.round_countdown = self.round_max_step-self.round_step

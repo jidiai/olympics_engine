@@ -5,21 +5,22 @@ import sys
 import random
 
 class table_hockey(OlympicsBase):
-    def __init__(self, map, minimap=False):
-        self.minimap_mode = minimap
+    def __init__(self, map):
+        self.minimap_mode = map['obs_cfg']['minimap']
 
         super(table_hockey, self).__init__(map)
-        self.gamma = 1  # v衰减系数
-        self.wall_restitution = 0.8
-        self.circle_restitution = 1
-        self.tau = 0.1
+        self.gamma = map['env_cfg']['gamma']
+        self.wall_restitution = map['env_cfg']['wall_restitution']
+        self.circle_restitution = map['env_cfg']['circle_restitution']
+        self.tau = map['env_cfg']['tau']
+        self.speed_cap = map['env_cfg']['speed_cap']
+        self.max_step = map['env_cfg']['max_step']
 
         self.print_log = False
 
         self.draw_obs = True
         self.show_traj = False
         
-        self.speed_cap = 100
 
 
     def reset(self):
