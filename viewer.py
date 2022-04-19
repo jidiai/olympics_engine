@@ -77,7 +77,7 @@ class Viewer():
     def draw_obs(self, points, agent_list):
         for b in range(len(points)):
             if points[b] is not None:
-                pygame.draw.lines(self.background, agent_list[b].color, 1, points[b], 2)
+                pygame.draw.lines(self.background, COLORS[agent_list[b].color], 1, points[b], 2)
 
     # def draw_energy_bar(self, agent_list, height = 100):
     #     #coord = [570 + 70 * i for i in range(len(agent_list))]
@@ -126,7 +126,7 @@ class Viewer():
     #         count += 1
     #         coord += 70
 
-    def draw_view(self, obs, agent_list, leftmost_x, upmost_y, gap = 70):
+    def draw_view(self, obs, agent_list, leftmost_x, upmost_y, gap = 70, view_ifself=True):
 
         count = 0
         x_start = leftmost_x
@@ -150,16 +150,17 @@ class Viewer():
             center_x = x_start + ((obs_width)*grid_node_width)/2 #- agent_list[agent_idx].r
             center_y = y_start + (obs_height)*grid_node_height + agent_list[agent_idx].r
 
-            pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [center_x, center_y],
-                               agent_list[agent_idx].r, width=0)
-            pygame.draw.circle(self.background, COLORS['black'], [center_x, center_y],
-                               2, width=0)
+            if not view_ifself:
+                pygame.draw.circle(self.background, COLORS[agent_list[agent_idx].color], [center_x, center_y],
+                                   agent_list[agent_idx].r, width=0)
+                pygame.draw.circle(self.background, COLORS['black'], [center_x, center_y],
+                                   2, width=0)
 
             pygame.draw.lines(self.background, points =[[x_start,y_start],
                                                         [x_start, y_start+obs_height*grid_node_height],
                                                         [x_start+obs_width*grid_node_width, y_start+obs_height*grid_node_height],
                                                         [x_start+obs_width*grid_node_width, y_start]], closed=True,
-                              color = COLORS[agent_list[agent_idx].color], width=2)
+                              color = COLORS[agent_list[agent_idx].color], width=1)
 
             count += 1
             x_start += gap
