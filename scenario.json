@@ -591,12 +591,12 @@
               270
             ],
             [
-              250,
+              200,
               270
             ]
           ],
-          "color": "purple",
-          "width": 10
+          "color": "white",
+          "width": 5
         },
         "component4": {
           "initial_position": [
@@ -605,45 +605,45 @@
               530
             ],
             [
-              250,
+              200,
               530
             ]
           ],
-          "color": "purple",
-          "width": 10
+          "color": "white",
+          "width": 5
         },
         "component5": {
           "initial_position": [
             [
-              250,
+              200,
               530
             ],
             [
-              250,
+              200,
               270
             ]
           ],
-          "color": "purple",
-          "width": 10
+          "color": "white",
+          "width": 5
         },
         "component6": {
           "initial_position": [
             [
-              450,
+              500,
               530
             ],
             [
-              450,
+              500,
               270
             ]
           ],
-          "color": "green",
-          "width": 10
+          "color": "white",
+          "width": 5
         },
         "component7": {
           "initial_position": [
             [
-              450,
+              500,
               530
             ],
             [
@@ -651,13 +651,13 @@
               530
             ]
           ],
-          "color": "green",
-          "width": 10
+          "color": "white",
+          "width": 5
         },
         "component8": {
           "initial_position": [
             [
-              450,
+              500,
               270
             ],
             [
@@ -665,8 +665,22 @@
               270
             ]
           ],
-          "color": "green",
-          "width": 10
+          "color": "white",
+          "width": 5
+        },
+        "component9": {
+          "initial_position": [
+            [
+              350,
+              200
+            ],
+            [
+              350,
+              600
+            ]
+          ],
+          "color": "white",
+          "width": 5
         }
       }
     },
@@ -714,7 +728,7 @@
     "view": {
       "width": 600,
       "height": 600,
-      "edge": 50,
+      "edge": 70,
       "init_obs" : [0, 180, 0]
     }
   },

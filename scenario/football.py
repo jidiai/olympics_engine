@@ -2,10 +2,18 @@ from olympics_engine.core import OlympicsBase
 from olympics_engine.viewer import Viewer, debug
 import pygame
 import sys
+import time
+import os
+from pathlib import Path
+CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
+import math
 
 class football(OlympicsBase):
     def __init__(self, map, minimap=False):
         self.minimap_mode = map['obs_cfg']['minimap']
+        for wall in map['objects']:
+            if wall.type == 'wall':
+                wall.color='white'
 
         super(football, self).__init__(map)
 
@@ -34,6 +42,9 @@ class football(OlympicsBase):
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
 
+        self.viewer.set_screen(size = (600, 400), color = (143,203,174), pos = (50,200))
+        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (5, 350))
+        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (650, 350))
 
         init_obs = self.get_obs()
         if self.minimap_mode:
@@ -186,14 +197,27 @@ class football(OlympicsBase):
                 self.viewer.set_mode()
                 self.display_mode=True
 
+                self.playground_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/playground.png")).convert_alpha()
+                self.player_1_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent1_bold.png")).convert_alpha()
+                self.player_2_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent2_bold.png")).convert_alpha()
+                self.ball_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/football.png")).convert_alpha()
+                self.player_1_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight1.png")).convert_alpha()
+                self.player_2_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight2.png")).convert_alpha()
+
+
             self.viewer.draw_background()
+            self._draw_playground()
+            for i in self.viewer.screen_list:
+                self.viewer.background.blit(i['screen'], i['pos'])
+
             for w in self.map['objects']:
                 self.viewer.draw_map(w)
 
-            self.viewer.draw_ball(self.agent_pos, self.agent_list)
+            # self.viewer.draw_ball(self.agent_pos, self.agent_list)
+            self._draw_image(self.agent_pos, self.agent_list, self.agent_theta, self.obs_boundary)
 
-            if self.draw_obs:
-                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+            # if self.draw_obs:
+            #     self.viewer.draw_obs(self.obs_boundary, self.agent_list)
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
@@ -215,3 +239,59 @@ class football(OlympicsBase):
                 sys.exit()
         pygame.display.flip()
         #self.viewer.background.fill((255, 255, 255))
+
+    def _draw_playground(self):
+        # playground_image_size = self.playground_image.get_size()
+        image = pygame.transform.scale(self.playground_image, size = (720, 480))
+        loc = (0,170)
+        self.viewer.background.blit(image, loc)
+
+
+    def _draw_image(self, pos_list, agent_list, direction_list, view_list):
+        assert len(pos_list) == len(agent_list)
+        for i in range(len(pos_list)):
+            agent = self.agent_list[i]
+
+            t = pos_list[i]
+            r = agent_list[i].r
+            color = agent_list[i].color
+            theta = direction_list[i][0]
+            vis = agent_list[i].visibility
+
+            if agent.type == 'agent':
+                if color == 'purple':
+                    player_image_size = self.player_1_image.get_size()
+                    image= pygame.transform.scale(self.player_1_image, size = (r*2, player_image_size[1]*(r*2)/player_image_size[0]))
+                    loc = (t[0]-r ,t[1]-r)
+
+                    view_image = pygame.transform.scale(self.player_1_view_image, size = (vis, vis))
+                    rotate_view_image = pygame.transform.rotate(view_image, -theta)
+
+                    new_view_center = [t[0]+100*math.cos(theta*math.pi/180), t[1]+100*math.sin(theta*math.pi/180)]
+                    new_view_rect = rotate_view_image.get_rect(center=new_view_center)
+
+                    self.viewer.background.blit(rotate_view_image, new_view_rect)
+                elif color == 'green':
+                    player_image_size = self.player_2_image.get_size()
+                    image= pygame.transform.scale(self.player_2_image, size = (r*2, player_image_size[1]*(r*2)/player_image_size[0]))
+                    loc = (t[0]-r ,t[1]-r)
+
+                    view_image = pygame.transform.scale(self.player_2_view_image, size = (vis, vis))
+                    rotate_view_image = pygame.transform.rotate(view_image, -theta)
+
+                    new_view_center = [t[0]+100*math.cos(theta*math.pi/180), t[1]+100*math.sin(theta*math.pi/180)]
+                    new_view_rect = rotate_view_image.get_rect(center=new_view_center)
+                    self.viewer.background.blit(rotate_view_image, new_view_rect)
+
+                    # self.viewer.background.blit(image_green, loc)
+            elif agent.type == 'ball':
+                image = pygame.transform.scale(self.ball_image, size = (r*2, r*2))
+                loc = (t[0] - r, t[1] - r)
+
+            rotate_image = pygame.transform.rotate(image, -theta)
+
+            new_rect = rotate_image.get_rect(center=image.get_rect(center = t).center)
+
+
+            self.viewer.background.blit(rotate_image, new_rect)
+
