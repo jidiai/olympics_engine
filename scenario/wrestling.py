@@ -15,6 +15,8 @@ class wrestling(OlympicsBase):
 
         super(wrestling, self).__init__(map)
 
+        self.game_name = 'wrestling'
+
         self.gamma = map['env_cfg']['gamma']
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']

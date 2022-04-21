@@ -16,28 +16,51 @@ maps_path = os.path.join(current_path, "running_competition_maps/maps.json")
 
 
 class Running_competition(OlympicsBase):
-    def __init__(self, map, seed = None):
+    def __init__(self, meta_map, map_id = None, seed = None, vis = None, vis_clear=None):
         # self.minimap_mode = map['obs_cfg'].get('minimap', False)
 
-        Gamemap = Running_competition.choose_a_map()        #fixme(yan): penatration in some maps, need to check engine, vis
+        Gamemap = Running_competition.choose_a_map(idx = map_id)        #fixme(yan): penatration in some maps, need to check engine, vis
+        if vis is not None:
+            for a in Gamemap['agents']:
+                a.visibility = vis
+                a.visibility_clear = vis_clear
+        self.meta_map = meta_map
 
         super(Running_competition, self).__init__(Gamemap, seed)
-        self.gamma = 1  # v衰减系数
-        self.restitution = 0.5
-        self.print_log = False
-        self.print_log2 = False
-        self.tau = 0.1
 
-        self.speed_cap =  100
+        self.game_name = 'running-competition'
 
-        self.draw_obs = True
-        self.show_traj = True
+        self.original_tau = meta_map['env_cfg']['tau']
+        self.original_gamma = meta_map['env_cfg']['gamma']
+        self.wall_restitution = meta_map['env_cfg']['wall_restitution']
+        self.circle_restitution = meta_map['env_cfg']['circle_restitution']
+        self.max_step = meta_map['env_cfg']['max_step']
+        self.energy_recover_rate = meta_map['env_cfg']['energy_recover_rate']
+        self.speed_cap = meta_map['env_cfg']['speed_cap']
+        self.faster = meta_map['env_cfg']['faster']
 
+        self.tau = self.original_tau*self.faster
+        self.gamma = 1-(1-self.original_gamma)*self.faster
+
+        # self.gamma = 1  # v衰减系数
+        # self.restitution = 0.5
+        # self.print_log = False
+        # self.print_log2 = False
+        # self.tau = 0.1
+        #
+        # self.speed_cap =  100
+        #
+        # self.draw_obs = True
+        # self.show_traj = True
+
+    @staticmethod
+    def reset_map(meta_map, map_id, vis=None, vis_clear=None):
+        return Running_competition(meta_map, map_id, vis=vis, vis_clear = vis_clear)
 
     @staticmethod
     def choose_a_map(idx=None):
         if idx is None:
-            idx = random.randint(1,10)
+            idx = random.randint(1,4)
         MapStats = create_scenario("map"+str(idx), file_path=  maps_path)
         return MapStats
 
@@ -94,6 +117,15 @@ class Running_competition(OlympicsBase):
         self.change_inner_state()
 
         return obs_next, step_reward, done, ''
+
+    def check_win(self):
+        if self.agent_list[0].finished and not (self.agent_list[1].finished):
+            return '0'
+        elif not(self.agent_list[0].finished) and self.agent_list[1].finished:
+            return '1'
+        else:
+            return '-1'
+
 
     def render(self, info=None):
 

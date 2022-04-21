@@ -67,6 +67,8 @@ class curling_long(OlympicsBase):
 
         super(curling_long, self).__init__(map)
 
+        self.game_name = 'curling-long'
+
         self.tau = self.original_tau
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']

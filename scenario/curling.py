@@ -68,6 +68,8 @@ class curling(OlympicsBase):
 
         super(curling, self).__init__(map)
 
+        self.game_name = 'curling'
+
         self.tau = self.original_tau
         self.faster = map['env_cfg']['faster']
 
