@@ -134,7 +134,7 @@ class Viewer():
     #         count += 1
     #         coord += 70
 
-    def draw_view(self, obs, agent_list, leftmost_x, upmost_y, gap = 70, view_ifself=True):
+    def draw_view(self, obs, agent_list, leftmost_x, upmost_y, gap = 70, view_ifself=True, energy_width = 5):
 
         count = 0
         x_start = leftmost_x
@@ -188,9 +188,9 @@ class Viewer():
                 start_pos = [x_start2 , y_start2]
                 end_pos=  [x_start2 + obs_width*2*remaining_energy, y_start2]
                 pygame.draw.line(self.background, color=COLORS[agent_list[agent_idx].color], start_pos=start_pos,
-                                 end_pos=end_pos, width = 5)
+                                 end_pos=end_pos, width = energy_width)
 
-                debug(f"team {count2}", x = x_start2+obs_width*0.5,y = y_start2 + 15)
+                debug(f"team {count2}", x = x_start2+obs_width*0.5,y = y_start2 + 15, c='black')
 
                 count2 += 1
                 x_start2 += gap

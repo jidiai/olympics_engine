@@ -176,7 +176,7 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "purple",
+          "color": "light red",
           "vis": 200,
           "vis_clear": 5
         },
@@ -187,7 +187,7 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "green",
+          "color": "blue",
           "vis": 200,
           "vis_clear": 5
         }
@@ -207,7 +207,8 @@
       "circle_restitution": 0.5,
       "max_step": 500,
       "energy_recover_rate": 200,
-      "speed_cap": 500
+      "speed_cap": 500,
+      "faster": 2
     },
     "obs_cfg": {
       "minimap": false
@@ -383,11 +384,13 @@
   "football": {
     "env_cfg": {
       "tau": 0.1,
-      "gamma": 1,
+      "gamma": 0.98,
       "wall_restitution": 0.8,
       "circle_restitution": 1,
       "max_step": 500,
-      "speed_cap": 100
+      "speed_cap": 100,
+      "faster": 1.5,
+      "energy_recover_rate": 100
     },
     "obs_cfg": {
       "minimap": false
@@ -591,12 +594,11 @@
               270
             ],
             [
-              200,
+              150,
               270
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component4": {
           "initial_position": [
@@ -605,45 +607,42 @@
               530
             ],
             [
-              200,
+              150,
               530
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component5": {
           "initial_position": [
             [
-              200,
+              150,
               530
             ],
             [
-              200,
+              150,
               270
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component6": {
           "initial_position": [
             [
-              500,
+              550,
               530
             ],
             [
-              500,
+              550,
               270
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component7": {
           "initial_position": [
             [
-              500,
+              550,
               530
             ],
             [
@@ -651,13 +650,12 @@
               530
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component8": {
           "initial_position": [
             [
-              500,
+              550,
               270
             ],
             [
@@ -665,8 +663,7 @@
               270
             ]
           ],
-          "color": "white",
-          "width": 5
+          "color": "white"
         },
         "component9": {
           "initial_position": [
@@ -679,8 +676,38 @@
               600
             ]
           ],
+          "color": "white"
+        }
+      }
+    },
+    "arc": {
+      "num": 2,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            300,
+            350,
+            100,
+            100
+          ],
+          "start_radian": 90,
+          "end_radian": -90,
+          "passable": "True",
           "color": "white",
-          "width": 5
+          "collision_mode": 0
+        },
+        "component2": {
+          "initial_position": [
+            300,
+            350,
+            100,
+            100
+          ],
+          "start_radian": -90,
+          "end_radian": 90,
+          "passable": "True",
+          "color": "white",
+          "collision_mode": 0
         }
       }
     },
@@ -694,7 +721,7 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "purple",
+          "color": "light red",
           "vis": 200,
           "vis_clear": 5
         },
@@ -705,7 +732,7 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "green",
+          "color": "blue",
           "vis": 200,
           "vis_clear": 5
         }
