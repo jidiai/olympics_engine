@@ -68,6 +68,8 @@ class curling_competition(OlympicsBase):
 
         super(curling_competition, self).__init__(map)
 
+        self.game_name = 'curling-competition'
+
         # self.tau = 0.1
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']

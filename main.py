@@ -44,9 +44,13 @@ if __name__ == "__main__":
         #game = table_hockey(Gamemap)
         if args.map == 'running':
             game = Running(Gamemap)
-            agent_num = 2
+            agent_num = 3
         elif args.map == 'running-competition':
-            game = Running_competition(Gamemap)
+
+            map_id = random.randint(1,10)
+            map_id = 11
+            Gamemap = create_scenario(args.map)
+            game = Running_competition(meta_map=Gamemap,map_id=map_id)
             agent_num = 2
 
 
@@ -109,7 +113,7 @@ if __name__ == "__main__":
             #action2 = [100,0] #rand_agent.act(obs)
             if agent_num == 2:
                 action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
-                action1 = [100,0]
+                # action1 = [100,1]
 
                 # action1 =[50,1]
                 # action2 = [50,-1]
@@ -138,10 +142,10 @@ if __name__ == "__main__":
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
-        if args.map == 'billiard':
-            print('reward =', game.total_reward)
-        else:
-            print('reward = ', reward)
+        # if args.map == 'billiard':
+        #     print('reward =', game.total_reward)
+        # else:
+            # print('reward = ', reward)
         # if R:
         #     store(record,'bug1')
 

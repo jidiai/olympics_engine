@@ -1,6 +1,7 @@
 
 COLORS = {
-    'red': [255, 0, 0],
+    'red': [255,0,0],
+    'light red': [255, 127, 127],
     'green': [0, 255, 0],
     'blue': [0, 0, 255],
     'orange': [255, 127, 0],
@@ -9,7 +10,9 @@ COLORS = {
     'black': [0, 0, 0],
     'white': [255, 255, 255],
     'light green': [204, 255, 229],
-    'sky blue': [0,191,255]
+    'sky blue': [0,191,255],
+    # 'red-2': [215,80,83],
+    # 'blue-2': [73,141,247]
 }
 
 COLOR_TO_IDX = {
@@ -21,7 +24,11 @@ COLOR_TO_IDX = {
     'purple': 5,
     'black': 6,
     'red': 7,
-    'blue':8
+    'blue':8,
+    'white': 9,
+    'light red': 10
+    # 'red-2': 9,
+    # 'blue-2': 10
 }
 
 IDX_TO_COLOR = {
@@ -33,7 +40,11 @@ IDX_TO_COLOR = {
     5: 'purple',
     6: 'black',
     7: 'red',
-    8: 'blue'
+    8: 'blue',
+    9: 'white',
+    10: 'light red'
+    # 9: 'red-2',
+    # 10: 'blue-2'
 }
 
 

@@ -23,7 +23,7 @@ from olympics_engine.tools.settings import *
 
 class OlympicsBase(object):
     def __init__(self, map, seed=None):
-
+        self.VIEW_ITSELF = True
         self.seed = seed
         self.set_seed()
 
@@ -126,7 +126,11 @@ class OlympicsBase(object):
         boundary = list()
         x_init, y_init = init_position[0], init_position[1]
         for unit in [[0,1], [1,1], [1,-1], [0,-1]]:
-            x = x_init + r + visibility * unit[0]
+            if self.VIEW_ITSELF:
+                x = x_init + visibility * unit[0]
+            else:
+                x = x_init + r + visibility * unit[0]
+
             y = y_init - visibility * unit[1] / 2
             boundary.append([x,y])
         return boundary
@@ -809,7 +813,10 @@ class OlympicsBase(object):
 
             # 计算视野中心点到各个边的距离
             # 视野中心点
-            vec_oc = (agent.r+visibility/2, 0)
+            if self.VIEW_ITSELF:
+                vec_oc = (visibility/2, 0)
+            else:
+                vec_oc = (agent.r+visibility/2, 0)
             c_x = vec_oc[0]
             c_y = vec_oc[1]
             c_x_, c_y_ = rotate2(c_x, c_y, theta)
@@ -891,10 +898,23 @@ class OlympicsBase(object):
             #for component in map_objects:
             for component in list(reversed(map_objects)):           #reverse to consider agent first, then wall
                 for i in range(obs_size):
-                    x = agent.r + visibility - v_clear*i - v_clear / 2
+                    if self.VIEW_ITSELF:
+                        x = visibility - v_clear*i - v_clear/2
+                    else:
+                        x = agent.r + visibility - v_clear*i - v_clear / 2
+
                     for j in range(obs_size):
                         y = visibility/2 - v_clear*j - v_clear /2
                         point = (x, y)
+
+                        if self.VIEW_ITSELF:
+                            #plot the agnet it self
+                            self_center = [0, 0]
+                            dis_to_itself = math.sqrt((point[0]-self_center[0])**2 + (point[1]-self_center[1])**2)
+                            if dis_to_itself <= self.agent_list[agent_idx].r:
+                                obs_map[i][j] = COLOR_TO_IDX[self.agent_list[agent_idx].color]
+
+
                         if obs_map[i][j] > 0:           #when there is already object on this pixel
                             continue
                         else:

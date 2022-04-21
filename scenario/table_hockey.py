@@ -9,6 +9,9 @@ class table_hockey(OlympicsBase):
         self.minimap_mode = map['obs_cfg']['minimap']
 
         super(table_hockey, self).__init__(map)
+
+        self.game_name = 'table-hockey'
+
         self.gamma = map['env_cfg']['gamma']
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']

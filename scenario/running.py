@@ -10,6 +10,11 @@ class Running(OlympicsBase):
 
         super(Running, self).__init__(map, seed)
 
+        self.game_name = 'running'
+
+        self.agent1_color = self.agent_list[0].color
+        self.agent2_color = self.agent_list[1].color
+
         self.tau = map['env_cfg'].get('tau', 0.1)
         self.gamma = map["env_cfg"].get('gamma', 1)
         self.wall_restitution = map['env_cfg'].get('wall_restitution', 1)
