@@ -245,7 +245,9 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -254,7 +256,9 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -593,7 +597,9 @@
           ],
           "mass": 1,
           "radius": 18.75,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -602,7 +608,9 @@
           ],
           "mass": 1,
           "radius": 18.75,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -998,7 +1006,9 @@
           ],
           "mass": 1,
           "radius": 18.75,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -1007,7 +1017,9 @@
           ],
           "mass": 1,
           "radius": 18.75,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -1671,7 +1683,9 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -1680,7 +1694,9 @@
           ],
           "mass": 1,
           "radius": 12.5,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -2156,7 +2172,9 @@
           ],
           "mass": 1,
           "radius": 9.375,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -2165,7 +2183,9 @@
           ],
           "mass": 1,
           "radius": 9.375,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -2519,7 +2539,9 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -2528,7 +2550,9 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -2874,7 +2898,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -2883,7 +2909,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -3019,7 +3047,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -3028,7 +3058,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -3242,7 +3274,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -3251,7 +3285,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -3673,7 +3709,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -3682,7 +3720,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
@@ -4160,7 +4200,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "purple"
+          "color": "purple",
+          "vis": 150,
+          "vis_clear": 6
         },
         "component2": {
           "initial_position": [
@@ -4169,7 +4211,9 @@
           ],
           "mass": 1,
           "radius": 15,
-          "color": "green"
+          "color": "green",
+          "vis": 150,
+          "vis_clear": 6
         }
       }
     },
