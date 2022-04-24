@@ -83,9 +83,14 @@ class Viewer():
                 pygame.draw.circle(self.background, COLORS[agent_list[i].color], t, 2, 1)
 
     def draw_obs(self, points, agent_list):
-        for b in range(len(points)):
-            if points[b] is not None:
-                pygame.draw.lines(self.background, COLORS[agent_list[b].color], 1, points[b], 2)
+        if len(points) >= len(agent_list):
+            for b in range(len(agent_list)):
+                if points[b] is not None:
+                    pygame.draw.lines(self.background, COLORS[agent_list[b].color], 1, points[b], 2)
+        else:
+            for b in range(len(points)):
+                if points[b] is not None:
+                    pygame.draw.lines(self.background, COLORS[agent_list[b].color], 1, points[b], 2)
 
     # def draw_energy_bar(self, agent_list, height = 100):
     #     #coord = [570 + 70 * i for i in range(len(agent_list))]

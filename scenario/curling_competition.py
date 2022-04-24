@@ -508,8 +508,9 @@ class curling_competition(OlympicsBase):
         #self.viewer.draw_map()
 
         if self.draw_obs:
-            self.viewer.draw_obs(self.obs_boundary, self.agent_list)
-            self._draw_curling_view(self.obs_list, self.agent_list)
+            if len(self.agent_list)!=0:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+                self._draw_curling_view(self.obs_list, self.agent_list)
 
 
             # if self.current_team == 0:
@@ -624,7 +625,7 @@ class curling_competition(OlympicsBase):
         #draw agent 1, [50, 50], [50+width, 50], [50, 50+height], [50+width, 50+height]
         # coord = [580 + 70 * i for i in range(len(obs))]
         coord = 580
-        for agent_idx in range(len(obs)):
+        for agent_idx in range(len(agent_list)):
             matrix = obs[agent_idx]
             if matrix is None:
                 continue

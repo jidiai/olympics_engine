@@ -39,7 +39,7 @@ class billiard_joint(OlympicsBase):
         # self.green_init_pos = [[50,200], [400,550]]
         self.white_ball_init_pos = [[100, 200,270, 365], [100,200,385,485]]       #xmin xmax ymin ymax
 
-        self.white_ball_color = ['purple','green']
+        self.white_ball_color = [self.agent1_color, self.agent2_color]
         self.vis = 200
         self.vis_clear = 5
 
@@ -91,8 +91,11 @@ class billiard_joint(OlympicsBase):
         self.ball_left = [3, 3]
         # self.purple_ball_left = 3
         # self.green_ball_left = 3
-        self.purple_ball_color = 'sky blue'
-        self.green_ball_color = 'orange'
+        self.agent1_color = self.agent_list[0].color
+        self.agent2_color = self.agent_list[1].color
+
+        self.agent1_ball_color = self.agent1_color
+        self.agent2_ball_color = self.agent2_color
         self.nonzero_reward_list = []
         self.output_reward = [0,0]
         self.score = [0,0]
@@ -133,9 +136,9 @@ class billiard_joint(OlympicsBase):
         for agent_idx in range(len(self.agent_list)):
             agent = self.agent_list[agent_idx]
             if agent.type == 'agent':
-                if agent.color == 'purple':
+                if agent.color == self.agent1_color:
                     action.append(action_list[0])
-                elif agent.color == 'green':
+                elif agent.color == self.agent2_color:
                     action.append(action_list[1])
                 else:
                     raise NotImplementedError
@@ -314,9 +317,9 @@ class billiard_joint(OlympicsBase):
                     l = point2point(agent_new_pos, center)
                     if abs(l - arc_r) <= agent.r:
                         if agent.type == 'agent':
-                            if agent.color == 'purple':
+                            if agent.color == self.agent1_color:
                                 self.white_ball_in[0] = True
-                            elif agent.color == 'green':
+                            elif agent.color == self.agent2_color:
                                 self.white_ball_in[1] = True
 
                         agent.color = 'blue'
@@ -335,11 +338,11 @@ class billiard_joint(OlympicsBase):
                 self.num_ball_left -= 1
             if self.agent_list[idx - index_add_on].type == 'ball':
                 color = self.agent_list[idx - index_add_on].original_color
-                if color == self.purple_ball_color:
+                if color == self.agent1_ball_color:
                     self.ball_left[0] -= 1
                     self.score[0] += 1
                     # self.purple_ball_left -= 1
-                elif color == self.green_ball_color:
+                elif color == self.agent2_ball_color:
                     self.ball_left[1] -= 1
                     self.score[1] += 1
                     # self.green_ball_left -= 1
@@ -438,9 +441,9 @@ class billiard_joint(OlympicsBase):
 
         for i,j in enumerate(self.agent_list):      #fixme: the transition of obs when cure ball is in need re-checking
             if j.type == 'agent':
-                if j.color == 'purple':
+                if j.color == self.agent1_color:
                     idx = 0
-                elif j.color == 'green':
+                elif j.color == self.agent2_color:
                     idx = 1
 
                 try:
@@ -512,8 +515,8 @@ class billiard_joint(OlympicsBase):
             debug(info, x=100)
 
         # debug("No. of balls left: {}".format(self.agent_num-1), x = 100)
-        debug(f"Purple ball left = {self.ball_left[0]}, total score = {self.total_score[0]}", c='purple',x=  100, y =10)
-        debug(f"Green ball left = {self.ball_left[1]}, total score = {self.total_score[1]}", c='green',x = 100, y=30)
+        debug(f"Agent1 ball left = {self.ball_left[0]}, total score = {self.total_score[0]}", c=self.agent1_color,x=  100, y =10)
+        debug(f"Agent2 ball left = {self.ball_left[1]}, total score = {self.total_score[1]}", c=self.agent2_color,x = 100, y=30)
 
         # debug(f"-----------Current team {self.current_team}", x = 250)
         # debug('Current player:', x = 480, y = 145)
@@ -530,14 +533,14 @@ class billiard_joint(OlympicsBase):
 
     def draw_table(self):
 
-        debug("team 0", x = 130, y = 70, c='purple')
+        debug("team 0", x = 130, y = 70, c=self.agent1_color)
         debug("No. breaks left: ", x = 20, y = 100 )
-        debug(f"{self.max_n_hit-self.player1_n_hit}", x = 150, y = 100, c='purple')
-        debug('team 1', x = 190, y = 70, c= 'green')
-        debug(f"{self.max_n_hit-self.player2_n_hit}", x = 210, y = 100, c='green')
+        debug(f"{self.max_n_hit-self.player1_n_hit}", x = 150, y = 100, c=self.agent1_color)
+        debug('team 1', x = 190, y = 70, c= self.agent2_color)
+        debug(f"{self.max_n_hit-self.player2_n_hit}", x = 210, y = 100, c=self.agent2_color)
         debug(f"Score: ", x=20, y=130)
-        debug(f'{self.team_score[0]}', x = 150, y=130, c='purple')
-        debug(f'{self.team_score[1]}', x=210, y=130, c='green')
+        debug(f'{self.team_score[0]}', x = 150, y=130, c=self.agent1_color)
+        debug(f'{self.team_score[1]}', x=210, y=130, c=self.agent2_color)
 
         pygame.draw.line(self.viewer.background, start_pos=[20, 90], end_pos=[230, 90], color=[0, 0, 0])
         pygame.draw.line(self.viewer.background, start_pos=[20, 120], end_pos=[230, 120], color=[0, 0, 0])
