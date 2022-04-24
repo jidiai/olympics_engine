@@ -208,18 +208,13 @@ class football(OlympicsBase):
                 self.viewer.set_mode()
                 self.display_mode=True
 
-                self.playground_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/playground.png")).convert_alpha()
-                self.player_1_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent1-V2.png")).convert_alpha()
-                self.player_2_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent2-V2.png")).convert_alpha()
-                self.ball_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/football.png")).convert_alpha()
-                self.player_1_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight1.png")).convert_alpha()
-                self.player_2_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight2.png")).convert_alpha()
+                self._load_image()
 
-                self.wood_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wood.png")).convert_alpha()
-                self.energy_bar_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy bar.png"))
+
 
             self.viewer.draw_background()
             self._draw_playground()
+            self._draw_energy(self.agent_list)
             for i in self.viewer.screen_list:
                 self.viewer.background.blit(i['screen'], i['pos'])
 
@@ -234,7 +229,7 @@ class football(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=9)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=0)
 
         if self.show_traj:
             self.get_trajectory()
@@ -253,19 +248,84 @@ class football(OlympicsBase):
         pygame.display.flip()
         #self.viewer.background.fill((255, 255, 255))
 
+    def _load_image(self):
+        self.playground_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/playground.png")).convert_alpha()
+        self.playground_image = pygame.transform.scale(self.playground_image, size = (720, 480))
+
+        self.player_1_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent1-V2.png")).convert_alpha()
+        self.player_2_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent2-V2.png")).convert_alpha()
+        self.ball_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/football.png")).convert_alpha()
+        self.player_1_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight1.png")).convert_alpha()
+        self.player_2_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight2.png")).convert_alpha()
+
+        self.wood_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/board.png")).convert_alpha()
+        self.wood_image1 = pygame.transform.scale(self.wood_image, size = (300,170))
+        self.wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
+
+        self.red_energy_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy-red.png")).convert_alpha()
+        red_energy_size = self.red_energy_image.get_size()
+        self.red_energy_image = pygame.transform.scale(self.red_energy_image, size = (110,red_energy_size[1]*110/red_energy_size[0]))
+
+        self.blue_energy_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy-blue.png")).convert_alpha()
+        blue_energy_size = self.blue_energy_image.get_size()
+        self.blue_energy_image = pygame.transform.scale(self.blue_energy_image, size = (110, blue_energy_size[1]*110/blue_energy_size[0]))
+
+        self.red_energy_bar_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy-red-bar.png")).convert_alpha()
+        red_energy_bar_size = self.red_energy_bar_image.get_size()
+        self.red_energy_bar_image = pygame.transform.scale(self.red_energy_bar_image, size=(85, 10))
+
+        self.blue_energy_bar_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy-blue-bar.png")).convert_alpha()
+        blue_energy_bar_size = self.blue_energy_bar_image.get_size()
+        self.blue_energy_bar_image = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
+
+
+
     def _draw_playground(self):
         # playground_image_size = self.playground_image.get_size()
-        image = pygame.transform.scale(self.playground_image, size = (720, 480))
+        # image = pygame.transform.scale(self.playground_image, size = (720, 480))
         loc = (0,170)
-        self.viewer.background.blit(image, loc)
+        self.viewer.background.blit(self.playground_image, loc)
 
-        wood_image = pygame.transform.scale(self.wood_image, size = (300,170))
-        self.viewer.background.blit(wood_image, (400, -5))
+        # wood_image = pygame.transform.scale(self.wood_image, size = (300,170))
+        self.viewer.background.blit(self.wood_image1, (400, 0))
+        # wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
+        self.viewer.background.blit(self.wood_image2, (20,0))
 
-        energy_size = self.energy_bar_image.get_size()
-        energy_bar_image = pygame.transform.scale(self.energy_bar_image, size = (108,energy_size[1]*100/energy_size[0]))
-        self.viewer.background.blit(energy_bar_image, (425, 88))
-        self.viewer.background.blit(energy_bar_image, (555, 88))
+        # red_energy_size = self.red_energy_image.get_size()
+        # red_energy_image = pygame.transform.scale(self.red_energy_image, size = (110,red_energy_size[1]*110/red_energy_size[0]))
+        #
+        # blue_energy_size = self.blue_energy_image.get_size()
+        # blue_energy_image = pygame.transform.scale(self.blue_energy_image, size = (110, blue_energy_size[1]*110/blue_energy_size[0]))
+
+
+        self.viewer.background.blit(self.red_energy_image, (425, 130))
+        self.viewer.background.blit(self.blue_energy_image, (555, 130))
+
+
+    def _draw_energy(self, agent_list):
+
+        # red_energy_bar_size = self.red_energy_bar_image.get_size()
+        # blue_energy_bar_size = self.blue_energy_bar_image.get_size()
+        # red_energy_bar = pygame.transform.scale(self.red_energy_bar_image, size=(85, 10))
+        # blue_energy_bar = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
+
+
+        start_pos = [448, 136]
+        # end_pos = [450+100*remain_energy, 130]
+        image = self.red_energy_bar_image
+        for agent_idx in range(len(agent_list)):
+            if agent_list[agent_idx].type == 'ball':
+                continue
+
+            remain_energy = agent_list[agent_idx].energy/agent_list[agent_idx].energy_cap
+
+
+            self.viewer.background.blit(image, start_pos, [0, 0, 85*remain_energy, 10])
+
+            start_pos[0] += 130
+            image = self.blue_energy_bar_image
+
+
 
     def _draw_image(self, pos_list, agent_list, direction_list, view_list):
         assert len(pos_list) == len(agent_list)

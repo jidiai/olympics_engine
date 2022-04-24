@@ -1026,11 +1026,11 @@ class OlympicsBase(object):
 
         if self.draw_obs:
             self.viewer.draw_obs(self.obs_boundary, self.agent_list)
-            self.viewer.draw_view(self.obs_list, self.agent_list)
+            self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10)
 
         #draw energy bar
         #debug('agent remaining energy = {}'.format([i.energy for i in self.agent_list]), x=100)
-        self.viewer.draw_energy_bar(self.agent_list)
+        # self.viewer.draw_energy_bar(self.agent_list)
         debug('Agent 0', x=570, y=110)
         debug('Agent 1', x=640, y=110)
         if self.map_num is not None:
