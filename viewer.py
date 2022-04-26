@@ -30,8 +30,8 @@ class Viewer():
         tmp_screen.fill(color)
         self.screen_list.append({'screen':tmp_screen, "pos": pos})
 
-    def draw_background(self):
-        self.background.fill((255, 255, 255))
+    def draw_background(self, color_code=(255,255,255)):
+        self.background.fill(color_code)
 
     def draw_ball(self, pos_list, agent_list):
         # self.background.fill((255, 255, 255))

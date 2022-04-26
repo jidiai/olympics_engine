@@ -845,30 +845,30 @@
         "component1": {
           "initial_position": [
             [
-              100,
+              140,
               350
             ],
             [
-              500,
+              460,
               350
             ]
           ],
           "color": "grey",
-          "width": 10
+          "width": 5
         },
         "component2": {
           "initial_position": [
             [
               300,
-              150
+              190
             ],
             [
               300,
-              550
+              510
             ]
           ],
           "color": "grey",
-          "width": 10
+          "width": 5
         }
       }
     },
@@ -885,9 +885,9 @@
           "start_radian": 90,
           "end_radian": -90,
           "passable": "True",
-          "color": "blue",
+          "color": "white",
           "collision_mode": 0,
-          "width": 5
+          "width": 3
         },
         "component2": {
           "initial_position": [
@@ -899,9 +899,37 @@
           "start_radian": -90,
           "end_radian": 90,
           "passable": "True",
-          "color": "blue",
+          "color": "white",
           "collision_mode": 0,
-          "width": 5
+          "width": 3
+        },
+        "component3": {
+          "initial_position": [
+            250,
+            300,
+            100,
+            100
+          ],
+          "start_radian": 90,
+          "end_radian": -90,
+          "passable": "True",
+          "color": "grey",
+          "collision_mode": 0,
+          "width": 3
+        },
+        "component4": {
+          "initial_position": [
+            250,
+            300,
+            100,
+            100
+          ],
+          "start_radian": -90,
+          "end_radian": 90,
+          "passable": "True",
+          "color": "grey",
+          "collision_mode": 0,
+          "width": 3
         }
       }
     },
@@ -915,7 +943,7 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "purple",
+          "color": "light red",
           "vis": 200,
           "vis_clear": 5
         },
@@ -926,7 +954,7 @@
           ],
           "mass": 1,
           "radius": 20,
-          "color": "green",
+          "color": "blue",
           "vis": 200,
           "vis_clear": 5
         }
