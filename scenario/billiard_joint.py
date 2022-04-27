@@ -65,7 +65,7 @@ class billiard_joint(OlympicsBase):
 
         self.set_seed()
         self.init_state()
-        self.step_cnt = 0
+        self.step_cnt = 1
         self.done = False
 
         self.viewer = Viewer(self.view_setting)
