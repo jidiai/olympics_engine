@@ -637,7 +637,7 @@
             ]
           ],
           "length": 200,
-          "color": "blue",
+          "color": "red",
           "width": 5
         },
         "component2": {
@@ -652,7 +652,7 @@
             ]
           ],
           "length": 200,
-          "color": "light red",
+          "color": "red",
           "width": 5
         },
         "component3": {
