@@ -172,11 +172,43 @@ def closest_point(l1, l2, point):
 def distance_to_line(l1, l2, pos):
     closest_p = closest_point(l1, l2, pos)
 
-    n = [pos[0] - closest_p[0], pos[1] - closest_p[1]]  # compute normal
-    nn = n[0] ** 2 + n[1] ** 2
-    nn_sqrt = math.sqrt(nn)
-    cl1 = [l1[0] - pos[0], l1[1] - pos[1]]
-    cl1_n = (cl1[0] * n[0] + cl1[1] * n[1]) / nn_sqrt
+    distance = (closest_p[0]-pos[0])**2 + (closest_p[1]-pos[1])**2
+    distance = math.sqrt(distance)
+    return distance
+    # return math.sqrt(distance)
+    #
+    # n = [pos[0] - closest_p[0], pos[1] - closest_p[1]]  # compute normal
+    # nn = n[0] ** 2 + n[1] ** 2
+    # nn_sqrt = math.sqrt(nn)
+    # cl1 = [l1[0] - pos[0], l1[1] - pos[1]]
+    # cl1_n = (cl1[0] * n[0] + cl1[1] * n[1]) / nn_sqrt
+    #
+    # assert distance == abs(cl1_n), print(f'distance = {distance}, cl1n = {abs(cl1_n)}')
+    #
+    # return abs(cl1_n)
 
-    return abs(cl1_n)
 
+def coordinate_rotate(center: [float, float],
+                      theta: float,
+                      target: [float, float]) -> [float, float]:
+    """
+    theta: angle shited from default axis, in degree, positive theta means rotate anti-clockwise
+    """
+    theta = theta*math.pi/180
+    c_t = [target[0]-center[0], target[1]-center[1]]
+    new_x = c_t[0]*math.cos(theta) + c_t[1]*math.sin(theta)
+    new_y = -c_t[0]*math.sin(theta) + c_t[1]*math.cos(theta)
+
+    return [new_x, new_y]
+
+
+
+
+
+if __name__ == '__main__':
+    # p1 = [70,20]
+    # p2 = [100,80]
+    # print(distance_to_line(p1, p2, [50,50]))
+    p1 = [0,0]
+    p2 = [40,40]
+    print(coordinate_rotate(p1, 10, p2))
