@@ -9,10 +9,14 @@ from core import OlympicsBase
 from objects import *
 from tools.func import *
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
 gamemap = {'objects':[], 'agents':[]}
 
-gamemap['objects'].append(Wall(init_pos = [[250, 100], [500, 50]], color = 'black'))
+gamemap['objects'].append(Wall(init_pos = [[250, 500], [300, 0]], color = 'black'))
+gamemap['objects'].append(Wall(init_pos = [[150, 100], [500, 60]], color = 'black'))
+
 # gamemap['objects'].append(Wall(init_pos = [[200, 10], [100, 200]], color = 'black'))
 # gamemap['objects'].append(Wall(init_pos = [[400, 10], [500, 200]], color = 'black'))
 # gamemap['objects'].append(Wall(init_pos = [[500, 200], [100, 200]], color = 'black'))
@@ -22,6 +26,75 @@ gamemap['agents'].append(Agent(position = [300,26], mass=1, r=15, color='purple'
 
 
 gamemap['view'] = {'width': 600, 'height':600, 'edge': 50, "init_obs": [90]}
+
+
+def point_rotate(center, point, theta):
+    px = point[0] - center[0]
+    py = point[1] - center[1]
+
+    nx = [math.cos(theta * math.pi / 180), math.sin(theta * math.pi / 180)]
+    ny = [-math.sin(theta * math.pi / 180), math.cos(theta * math.pi / 180)]
+    new_x = px * nx[0] + py * nx[1]
+    new_y = px * ny[0] + py * ny[1]
+    return [new_x, new_y]
+
+def DDA_line(matrix, draw_line, vis, vis_clear):
+    size = int(vis/vis_clear)
+    assert matrix.shape[0] == size
+    if len(draw_line) == 1:
+        point1 = draw_line[0]
+        x1, y1 = point1
+        y1 += vis/2
+        x1 /= vis_clear
+        y1 /= vis_clear
+
+        x = x1+0.5
+        y = y1+0.5
+        matrix[size-int(x)][int(y)] = 1
+        return matrix
+
+    elif len(draw_line) == 2:
+        point1, point2 = draw_line
+    else:
+        raise NotImplementedError
+
+    x1,y1 = point1
+    y1 += vis/2
+    x1 /= vis_clear
+    y1 /= vis_clear
+    x2, y2 = point2
+    y2 += vis/2
+    x2 /= vis_clear
+    y2 /= vis_clear
+
+    dx = x2-x1
+    dy = y2-y1
+
+    if abs(dx) > abs(dy):
+        steps = abs(dx)
+    else:
+        steps = abs(dy)
+
+    delta_x = float(dx/steps)
+    delta_y = float(dy/steps)
+
+    x = x1-0.5
+    y = y1-0.5
+
+    assert  0<=int(x)<=size-1
+    assert 0<=int(y)<=size-1
+
+    for i in range(0, int(steps + 1)):
+        matrix[size-1-int(x)][int(y)] = 1
+        x += delta_x
+        y += delta_y
+
+    return matrix
+
+
+
+
+
 
 
 
@@ -128,14 +201,81 @@ class env_test(OlympicsBase):
                 else:
                     raise NotImplementedError
 
-
+            obs_map = np.zeros((obs_size,obs_size))
             #rotating the object
             for obj in object_consider:
                 if obj.type == 'wall' or obj.type == 'cross':
-                    current_pos = c.init_pos
+                    current_pos = obj.init_pos
                     obj.rotate_pos = []
                     for end_point in current_pos:
-                        obj.rotate_pos.append(coordinate_rotate([agent_x, agent_y], -theta, end_point))
+                        # px = end_point[0]-agent_x
+                        # py = end_point[1]-agent_y
+                        #
+                        # nx = [math.cos(theta*math.pi/180), math.sin(theta*math.pi/180)]
+                        # ny = [-math.sin(theta*math.pi/180), math.cos(theta*math.pi/180)]
+                        # new_x = px*nx[0] + py*nx[1]
+                        # new_y = px*ny[0] + py*ny[1]
+                        # obj.rotate_pos.append([new_x, new_y])
+                        obj.rotate_pos.append(point_rotate([agent_x, agent_y], end_point, theta))
+                        # obj.rotate_pos.append(coordinate_rotate([agent_x, agent_y], -theta, end_point))
+                else:
+                    raise NotImplementedError
+
+                #compute the intersection point
+                intersect_p = []
+                rotate_boundary = [[[0, -visibility/2],[0, visibility/2]],
+                                   [[0,visibility/2],[visibility, visibility/2]],
+                                   [[visibility, visibility/2], [visibility, -visibility/2]],
+                                   [[visibility, -visibility/2],[0, -visibility/2]]]
+
+                # obs_rotate_boundary = []              #debug rotate boundard
+                # for line in self.obs_boundary:
+                #     rotate_bound = [point_rotate([agent_x, agent_y], i, theta) for i in line]
+                #     obs_rotate_boundary.append(rotate_bound)
+
+
+                # for line in self.obs_boundary:
+                for line in rotate_boundary:
+                    _intersect_p = line_intersect(line1 = line, line2 = obj.rotate_pos, return_p=True)
+                    if _intersect_p:
+                        # intersect_p.append({"bound": line, "intersect point": intersect_p})
+                        intersect_p.append(_intersect_p)
+
+                draw_line = []
+                if len(intersect_p) == 0:
+                    #no intersection
+                    continue
+                elif len(intersect_p) == 1:
+                    #one intersectoin, rotate it first
+                    # intersect_p1 = intersect_p[0]
+                    # c_p1 = [intersect_p1[0]-agent_x, intersect_p1[1]-agent_y]
+                    # rotate_intersect_p1 = [c_p1[0]*nx[0]+c_p1[1]*nx[1], c_p1[0]*ny[0]+c_p1[1]*ny[1]]
+                    # draw_line.append(rotate_intersect_p1)
+
+                    draw_line.append(intersect_p[0])
+
+                    if obj.rotate_pos[0][0]<visibility and abs(obj.rotate_pos[0][1]) < visibility/2:
+                        draw_line.append(obj.rotate_pos[0])
+                    elif obj.rotate_pos[1][0]<visibility and abs(obj.rotate_pos[1][1]) < visibility/2:
+                        draw_line.append(obj.rotate_pos[1])
+                    else:
+                        #only one point in the view
+                        pass
+                        # raise NotImplementedError
+
+                elif len(intersect_p) == 2:
+
+                    draw_line.append(intersect_p[0])
+                    draw_line.append(intersect_p[1])
+
+
+
+                #start drawing the object
+                obs_map = DDA_line(obs_map, draw_line, visibility, v_clear)
+
+
+            print('a')
+
 
 
 

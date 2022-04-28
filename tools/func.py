@@ -125,7 +125,7 @@ def cross_prod(v1, v2):
     return v1[0]*v2[1] - v1[1]*v2[0]
 
 
-def line_intersect(line1, line2):       #[[x1,y1], [x2,y2]], https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+def line_intersect(line1, line2, return_p = False):       #[[x1,y1], [x2,y2]], https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 
     p = line1[0]
     r = [line1[1][0] - line1[0][0] , line1[1][1] - line1[0][1]]
@@ -144,7 +144,10 @@ def line_intersect(line1, line2):       #[[x1,y1], [x2,y2]], https://stackoverfl
 
         if 0<=t<=1 and 0<=u<=1:
             point = [p[0]+t*r[0], p[1]+t*r[1]]
-            return True
+            if return_p:
+                return point
+            else:
+                return True
         else:
             return False
 
@@ -209,6 +212,6 @@ if __name__ == '__main__':
     # p1 = [70,20]
     # p2 = [100,80]
     # print(distance_to_line(p1, p2, [50,50]))
-    p1 = [0,0]
-    p2 = [40,40]
-    print(coordinate_rotate(p1, 10, p2))
+    p1 = [[0,0], [0,100]]
+    p2 = [[0,30], [40,50]]
+    print(line_intersect(p1, p2, return_p=True))
