@@ -60,7 +60,7 @@ class Running_competition(OlympicsBase):
     @staticmethod
     def choose_a_map(idx=None):
         if idx is None:
-            idx = random.randint(1,4)
+            idx = random.randint(1,3)
         MapStats = create_scenario("map"+str(idx), file_path=  maps_path)
         return MapStats
 

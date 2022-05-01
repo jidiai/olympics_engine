@@ -289,7 +289,7 @@ class football(OlympicsBase):
         # wood_image = pygame.transform.scale(self.wood_image, size = (300,170))
         self.viewer.background.blit(self.wood_image1, (400, 0))
         # wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
-        self.viewer.background.blit(self.wood_image2, (20,0))
+        # self.viewer.background.blit(self.wood_image2, (20,0))
 
         # red_energy_size = self.red_energy_image.get_size()
         # red_energy_image = pygame.transform.scale(self.red_energy_image, size = (110,red_energy_size[1]*110/red_energy_size[0]))
@@ -337,6 +337,7 @@ class football(OlympicsBase):
             color = agent_list[i].color
             theta = direction_list[i][0]
             vis = agent_list[i].visibility
+            view_back = self.VIEW_BACK*vis if vis is not None else 0
 
             if agent.type == 'agent':
                 if color == self.agent1_color:
@@ -347,7 +348,7 @@ class football(OlympicsBase):
                     view_image = pygame.transform.scale(self.player_1_view_image, size = (vis, vis))
                     rotate_view_image = pygame.transform.rotate(view_image, -theta)
 
-                    new_view_center = [t[0]+100*math.cos(theta*math.pi/180), t[1]+100*math.sin(theta*math.pi/180)]
+                    new_view_center = [t[0]+(vis/2-view_back)*math.cos(theta*math.pi/180), t[1]+(vis/2-view_back)*math.sin(theta*math.pi/180)]
                     new_view_rect = rotate_view_image.get_rect(center=new_view_center)
                     self.viewer.background.blit(rotate_view_image, new_view_rect)
 
@@ -364,7 +365,7 @@ class football(OlympicsBase):
                     view_image = pygame.transform.scale(self.player_2_view_image, size = (vis, vis))
                     rotate_view_image = pygame.transform.rotate(view_image, -theta)
 
-                    new_view_center = [t[0]+100*math.cos(theta*math.pi/180), t[1]+100*math.sin(theta*math.pi/180)]
+                    new_view_center = [t[0]+(vis/2-view_back)*math.cos(theta*math.pi/180), t[1]+(vis/2-view_back)*math.sin(theta*math.pi/180)]
                     new_view_rect = rotate_view_image.get_rect(center=new_view_center)
                     self.viewer.background.blit(rotate_view_image, new_view_rect)
 
