@@ -738,9 +738,6 @@ class OlympicsBase(object):
     def get_obs(self):
         """
         POMDP: partial observation
-        step1: 将原坐标系上landmark（Cross, Wall...）映射到新坐标系，生成新坐标
-        step2: 在新坐标系下，进行栅格化
-        step3: 在视野范围内，填值
         """
 
 
@@ -793,16 +790,20 @@ class OlympicsBase(object):
                 agent_current_boundary.append([x_new_, -y_new_])
             self.obs_boundary.append(agent_current_boundary)
 
-            # 计算GameMap上objects组件，相对于agent的坐标(没有旋转)
+            #compute center of view
+            view_center_x = agent_x + visibility/2*math.cos(theta*math.pi/180)      #start from agent x,y
+            view_center_y = agent_y + visibility/2*math.sin(theta*math.pi/180)
+            view_center = [view_center_x, view_center_y]
+            view_R = visibility*math.sqrt(2)/2
+            line_consider = []
+
+            # rotate coord
             for index_m, item in enumerate(self.map["objects"]):
                 if (item.type == "wall") or (item.type == "cross"):
-                    pos = item.init_pos
-                    item.cur_pos = list()
-                    for index, p in enumerate(pos):
-                        vec_o_d = (p[0], -p[1])
-                        vec_oo_ = (-agent_x, agent_y)
-                        vec_od = (vec_o_d[0] + vec_oo_[0], vec_o_d[1] + vec_oo_[1])
-                        item.cur_pos.append([vec_od[0], vec_od[1]])
+                    closest_dist = distance_to_line(item.init_pos[0], item.init_pos[1], view_center)
+                    if closest_dist <= view_R:
+                        line_consider.append(item)
+
                 elif item.type == "arc":
                     pos = item.center
                     item.cur_pos = list()
@@ -811,8 +812,7 @@ class OlympicsBase(object):
                     vec_od = (vec_o_d[0] + vec_oo_[0], vec_o_d[1] + vec_oo_[1])
                     item.cur_pos.append([vec_od[0], vec_od[1]])
 
-            # 计算视野中心点到各个边的距离
-            # 视野中心点
+            # distance to view center
             if self.VIEW_ITSELF:
                 vec_oc = (visibility/2, 0)
             else:
@@ -827,11 +827,8 @@ class OlympicsBase(object):
             map_deduced["objects"] = list()
             for c in self.map["objects"]:
                 if (c.type == "wall") or (c.type == "cross"):
-                    distance = abs(get_distance(c.cur_pos, vec_oc_, c.length, pixel=False))
-                    if distance <= visibility/2 * 1.415:
-                    # if distance <= 50 * 1.415:
-                        map_deduced["objects"].append(c)
-                        map_objects.append(c)
+                    pass
+
                 elif c.type == "arc":
                     distance = distance_2points([c.cur_pos[0][0]-vec_oc_[0],c.cur_pos[0][1]-vec_oc_[1]])
                     if distance <= visibility/2 * 1.415 + c.R:
@@ -843,7 +840,7 @@ class OlympicsBase(object):
 
             map_deduced["agents"] = list()
 
-            # 当前agent自己
+            # current agent it self
             agent_self = self.agent_list[agent_idx]
             agent_self.to_another_agent = []
             agent_self.to_another_agent_rotated = []
@@ -867,7 +864,6 @@ class OlympicsBase(object):
                         agent_self.to_another_agent.append(vec_ob)
                         temp_idx += 1
 
-            # obs_map = np.zeros(( obs_weight , obs_height))
             obs_map = np.zeros((obs_size,obs_size))
             for obj in map_deduced["objects"]:
                 if (obj.type == "wall") or (obj.type == "cross"):
@@ -894,8 +890,89 @@ class OlympicsBase(object):
                 x, y = rotate2(vec_ob[0], vec_ob[1], theta_obj)
                 agent_self.to_another_agent_rotated.append((x,y))
 
+            # now start drawing line
+            for obj in line_consider:
+                if obj.type == 'wall' or obj.type == 'cross':
+                    current_pos = obj.init_pos
+                    obj.rotate_pos = []
+                    for end_point in current_pos:
+                        obj.rotate_pos.append(point_rotate([agent_x, agent_y], end_point, theta))
+
+                    # compute the intersection point
+                    intersect_p = []
+                    rotate_boundary = [[[0, -visibility / 2], [0, visibility / 2]],
+                                       [[0, visibility / 2], [visibility, visibility / 2]],
+                                       [[visibility, visibility / 2], [visibility, -visibility / 2]],
+                                       [[visibility, -visibility / 2], [0, -visibility / 2]]]
+
+                    # obs_rotate_boundary = []              #debug rotate boundary
+                    # for line in self.obs_boundary:
+                    #     rotate_bound = [point_rotate([agent_x, agent_y], i, theta) for i in line]
+                    #     obs_rotate_boundary.append(rotate_bound)
+
+                    for line in rotate_boundary:
+                        _intersect_p = line_intersect(line1=line, line2=obj.rotate_pos, return_p=True)
+                        if _intersect_p:
+                            intersect_p.append(_intersect_p)
+
+                    intersect_p = [tuple(i) for i in intersect_p]
+                    intersect_p = list(set(intersect_p))            #ensure no point repetition
+
+
+                    draw_line = []
+                    if len(intersect_p) == 0:
+                        point_1_in_view=  0 < obj.rotate_pos[0][0] < visibility and abs(obj.rotate_pos[0][1]) < visibility / 2
+                        point_2_in_view = 0 < obj.rotate_pos[1][0] < visibility and abs(obj.rotate_pos[1][1]) < visibility / 2
+
+                        if point_1_in_view and point_2_in_view:
+                            draw_line.append(obj.rotate_pos[0])
+                            draw_line.append(obj.rotate_pos[1])
+                        elif not point_1_in_view and not point_2_in_view:
+                            continue
+                        else:
+                            raise NotImplementedError
+
+                    elif len(intersect_p) == 1:
+
+                        draw_line.append(intersect_p[0])
+
+                        if 0 < obj.rotate_pos[0][0] < visibility and abs(
+                                obj.rotate_pos[0][1]) < visibility / 2:
+                            draw_line.append(obj.rotate_pos[0])
+                        elif 0 < obj.rotate_pos[1][0] < visibility and abs(
+                                obj.rotate_pos[1][1]) < visibility / 2:
+                            draw_line.append(obj.rotate_pos[1])
+                        else:
+                            # only one point in the view
+                            pass
+
+                    elif len(intersect_p) == 2:
+
+                        draw_line.append(intersect_p[0])
+                        draw_line.append(intersect_p[1])
+
+                    obs_map = DDA_line(obs_map, draw_line, visibility, v_clear,
+                                       value=COLOR_TO_IDX[obj.color])
+
+                else:
+                    raise NotImplementedError
+
+
             time_stamp = time.time()
             #for component in map_objects:
+            if len(list(reversed(map_objects))) == 0 and self.VIEW_ITSELF:   #if no object in the view, plot the agent itself
+                for i in range(obs_size):
+                    x = visibility - v_clear * i - v_clear / 2
+                    for j in range(obs_size):
+                        y = visibility/2 - v_clear*j - v_clear /2
+                        point = (x, y)
+
+                        self_center = [0, 0]
+                        dis_to_itself = math.sqrt((point[0] - self_center[0]) ** 2 + (point[1] - self_center[1]) ** 2)
+                        if dis_to_itself <= self.agent_list[agent_idx].r:
+                            obs_map[i][j] = COLOR_TO_IDX[self.agent_list[agent_idx].color]
+
+
             for component in list(reversed(map_objects)):           #reverse to consider agent first, then wall
                 for i in range(obs_size):
                     if self.VIEW_ITSELF:
@@ -915,7 +992,7 @@ class OlympicsBase(object):
                                 obs_map[i][j] = COLOR_TO_IDX[self.agent_list[agent_idx].color]
 
 
-                        if obs_map[i][j] > 0:           #when there is already object on this pixel
+                        if obs_map[i][j] > 0 and (component.type != 'agent' and component.type != 'ball'):           #when there is already object on this pixel
                             continue
                         else:
                             if (component.type == "wall") or (component.type == "cross"):
@@ -940,7 +1017,7 @@ class OlympicsBase(object):
                                 # if (angle >= start_radian) and (angle <= end_radian):
                                     vec = [x - component.cur_pos_rotated[0][0], y - component.cur_pos_rotated[0][1]]
                                     distance = distance_2points(vec)
-                                    if (distance <= radius + v_clear) and (distance >= radius - v_clear):
+                                    if (distance <= radius + v_clear/2) and (distance >= radius - v_clear/2):
                                         obs_map[i][j] = COLOR_TO_IDX[component.color]
 
             obs_list.append(obs_map)

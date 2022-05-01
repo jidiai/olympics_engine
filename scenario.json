@@ -208,7 +208,7 @@
       "max_step": 500,
       "energy_recover_rate": 200,
       "speed_cap": 500,
-      "faster": 2
+      "faster": 1
     },
     "obs_cfg": {
       "minimap": false
@@ -455,7 +455,7 @@
       "circle_restitution": 1,
       "max_step": 500,
       "speed_cap": 100,
-      "faster": 1.5,
+      "faster": 1,
       "energy_recover_rate": 100
     },
     "obs_cfg": {
