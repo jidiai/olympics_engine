@@ -33,7 +33,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="football", type= str,
+    parser.add_argument('--map', default="all", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
@@ -44,11 +44,11 @@ if __name__ == "__main__":
         #game = table_hockey(Gamemap)
         if args.map == 'running':
             game = Running(Gamemap)
-            agent_num = 3
+            agent_num = 2
         elif args.map == 'running-competition':
 
             map_id = random.randint(1,10)
-            map_id = 11
+            # map_id = 3
             Gamemap = create_scenario(args.map)
             game = Running_competition(meta_map=Gamemap,map_id=map_id)
             agent_num = 2
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             if RENDER:
                 game.render()
 
-            # time.sleep(0.02)
+            # time.sleep(0.05)
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
