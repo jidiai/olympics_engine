@@ -207,6 +207,76 @@ def coordinate_rotate(center: [float, float],
 
 
 
+#### new get_obs
+def point_rotate(center, point, theta):
+    px = point[0] - center[0]
+    py = point[1] - center[1]
+
+    nx = [math.cos(theta * math.pi / 180), math.sin(theta * math.pi / 180)]
+    ny = [-math.sin(theta * math.pi / 180), math.cos(theta * math.pi / 180)]
+    new_x = px * nx[0] + py * nx[1]
+    new_y = px * ny[0] + py * ny[1]
+    return [new_x, new_y]
+
+def DDA_line(matrix, draw_line, vis, vis_clear, value):
+    size = int(vis/vis_clear)
+    assert matrix.shape[0] == size
+    if len(draw_line) == 1:
+        point1 = draw_line[0]
+        x1, y1 = point1
+        y1 += vis/2
+        x1 /= vis_clear
+        y1 /= vis_clear
+
+        x = x1+0.5
+        y = y1+0.5
+        matrix[size-int(x)][int(y)] = 1
+        return matrix
+
+    elif len(draw_line) == 2:
+        point1, point2 = draw_line
+    else:
+        raise NotImplementedError
+
+    x1,y1 = point1
+    y1 += vis/2
+    x1 /= vis_clear
+    y1 /= vis_clear
+    x2, y2 = point2
+    y2 += vis/2
+    x2 /= vis_clear
+    y2 /= vis_clear
+
+    dx = x2-x1
+    dy = y2-y1
+
+    if abs(dx) > abs(dy):
+        steps = abs(dx)
+    else:
+        steps = abs(dy)
+
+    delta_x = float(dx/steps)
+    delta_y = float(dy/steps)
+
+    x = x1-0.5
+    y = y1-0.5
+
+    assert  0<=int(x)<=size-1
+    assert 0<=int(y)<=size-1
+
+    for i in range(0, int(steps + 1)):
+        if not 0<=size-1-int(x)<size or not 0<=int(y) <size:
+            raise NotImplementedError
+        matrix[size-1-int(x)][int(y)] = value
+
+
+        x += delta_x
+        y += delta_y
+
+    return matrix
+
+
+
 
 if __name__ == '__main__':
     # p1 = [70,20]

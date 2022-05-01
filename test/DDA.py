@@ -247,7 +247,7 @@ class env_test(OlympicsBase):
         #return self.agent_pos, self.agent_v, self.agent_accel, self.agent_theta, obs_next, step_reward, done
         return obs_next, step_reward, done, ''
 
-    def get_obs(self):
+    def get_obs2(self):
         self.obs_boundary = list()
 
         obs_list = list()
@@ -385,6 +385,7 @@ class env_test(OlympicsBase):
 
 
                 elif obj.type == 'arc':
+                    continue
                     current_center = obj.center
                     current_R = obj.R
                     current_start_radian, current_end_radian = obj.start_radian, obj.end_radian
@@ -479,7 +480,7 @@ class env_test(OlympicsBase):
 
 
 
-                    obs_map = bresenham_arc(obs_map, draw_arc_dict, visibility, v_clear, value=COLOR_TO_IDX[obj.color])
+                    # obs_map = bresenham_arc(obs_map, draw_arc_dict, visibility, v_clear, value=COLOR_TO_IDX[obj.color])
 
 
                     # elif len(intersect_p) == 1:
@@ -499,6 +500,305 @@ class env_test(OlympicsBase):
 
 
 
+    def get_obs1(self):
+        """
+        POMDP: partial observation
+        step1: 将原坐标系上landmark（Cross, Wall...）映射到新坐标系，生成新坐标
+        step2: 在新坐标系下，进行栅格化
+        step3: 在视野范围内，填值
+        """
+
+
+
+        # this is for debug
+        self.obs_boundary = list()
+
+
+        obs_list = list()
+
+        for agent_idx, agent in enumerate(self.agent_list):
+            if self.agent_list[agent_idx].type == 'ball':
+                self.obs_boundary.append(None)
+                obs_list.append(None)
+                continue
+
+            time_s = time.time()
+            theta_copy = self.agent_theta[agent_idx][0]
+            agent_pos = self.agent_pos
+            agent_x, agent_y = agent_pos[agent_idx][0], agent_pos[agent_idx][1]
+            theta = theta_copy
+            position_init = agent.position_init
+
+            visibility = self.agent_list[agent_idx].visibility
+            v_clear = self.agent_list[agent_idx].visibility_clear
+            # obs_map = np.zeros((visibility[0], visibility[1]))
+            # obs_weight,obs_height = int(visibility[0]/v_clear[0]),int(visibility[1]/v_clear[1])
+            obs_size = int(visibility / v_clear)
+
+            # update_obs_boundary()
+            agent_current_boundary = list()
+            for b in self.obs_boundary_init[agent_idx]:
+                m = b[0]
+                n = b[1]
+                # print("check b orig: ", b_x, b_y)
+                vec_oo_ = (-agent_x, agent_y)
+                vec = (-position_init[0], position_init[1])
+                vec_o_a = (m, -n)
+                # vec_oa = (vec_oo_[0]+vec_o_a[0], vec_oo_[1]+vec_o_a[1])
+                vec_oa = (vec[0] + vec_o_a[0], vec[1] + vec_o_a[1])
+                b_x_ = vec_oa[0]
+                b_y_ = vec_oa[1]
+                # print("check b: ", b_x_, b_y_)
+                x_new, y_new = rotate2(b_x_, b_y_, theta)
+                # print("check x_new: ", x_new, y_new)
+                # x_new_ = x_new + agent_x
+                # y_new_ = -y_new + agent_y
+                x_new_ =  x_new - vec_oo_[0]
+                y_new_ =  y_new - vec_oo_[1]
+                agent_current_boundary.append([x_new_, -y_new_])
+            self.obs_boundary.append(agent_current_boundary)
+
+            #compute center of view
+            view_center_x = agent_x + visibility/2*math.cos(theta*math.pi/180)      #start from agent x,y
+            view_center_y = agent_y + visibility/2*math.sin(theta*math.pi/180)
+            view_center = [view_center_x, view_center_y]
+            view_R = visibility*math.sqrt(2)/2
+            line_consider = []
+
+            # 计算GameMap上objects组件，相对于agent的坐标(没有旋转)
+            for index_m, item in enumerate(self.map["objects"]):
+                if (item.type == "wall") or (item.type == "cross"):
+                    closest_dist = distance_to_line(item.init_pos[0], item.init_pos[1], view_center)
+                    if closest_dist <= view_R:
+                        line_consider.append(item)
+
+                    # pos = item.init_pos
+                    # item.cur_pos = list()
+                    # for index, p in enumerate(pos):
+                    #     vec_o_d = (p[0], -p[1])
+                    #     vec_oo_ = (-agent_x, agent_y)
+                    #     vec_od = (vec_o_d[0] + vec_oo_[0], vec_o_d[1] + vec_oo_[1])
+                    #     item.cur_pos.append([vec_od[0], vec_od[1]])
+                elif item.type == "arc":
+                    pos = item.center
+                    item.cur_pos = list()
+                    vec_o_d = (pos[0], -pos[1])
+                    vec_oo_ = (-agent_x, agent_y)
+                    vec_od = (vec_o_d[0] + vec_oo_[0], vec_o_d[1] + vec_oo_[1])
+                    item.cur_pos.append([vec_od[0], vec_od[1]])
+
+            # 计算视野中心点到各个边的距离
+            # 视野中心点
+            if self.VIEW_ITSELF:
+                vec_oc = (visibility/2, 0)
+            else:
+                vec_oc = (agent.r+visibility/2, 0)
+            c_x = vec_oc[0]
+            c_y = vec_oc[1]
+            c_x_, c_y_ = rotate2(c_x, c_y, theta)
+            vec_oc_ = (c_x_, c_y_)
+
+            map_objects = list()
+            map_deduced = dict()
+            map_deduced["objects"] = list()
+            for c in self.map["objects"]:
+                if (c.type == "wall") or (c.type == "cross"):
+                    pass
+                    # distance = abs(get_distance(c.cur_pos, vec_oc_, c.length, pixel=False))
+                    # if distance <= visibility/2 * 1.415:
+                    # # if distance <= 50 * 1.415:
+                    #     map_deduced["objects"].append(c)
+                    #     map_objects.append(c)
+                elif c.type == "arc":
+                    distance = distance_2points([c.cur_pos[0][0]-vec_oc_[0],c.cur_pos[0][1]-vec_oc_[1]])
+                    if distance <= visibility/2 * 1.415 + c.R:
+                        map_deduced["objects"].append(c)
+                        map_objects.append(c)
+                else:
+                    raise ValueError("No such object type- {}. Please check scenario.json".
+                                     format(c.type))
+
+            map_deduced["agents"] = list()
+
+            # 当前agent自己
+            agent_self = self.agent_list[agent_idx]
+            agent_self.to_another_agent = []
+            agent_self.to_another_agent_rotated = []
+            temp_idx = 0
+            #for a_i, a_other in enumerate(self.map["agents"]):
+            for a_i, a_other in enumerate(self.agent_list):
+                if a_i == agent_idx:
+                    continue
+                else:
+                    vec_o_b = (self.agent_pos[a_i][0], -self.agent_pos[a_i][1])
+                    vec_oo_ = (-agent_x, agent_y)
+                    vec_ob = (vec_o_b[0]+vec_oo_[0], vec_o_b[1]+vec_oo_[1])
+                    vec_bc_ = (vec_oc_[0]-vec_ob[0], vec_oc_[1]-vec_ob[1])
+                    # agent_self.to_another_agent = vec_ob
+                    distance = math.sqrt(vec_bc_[0]**2 + vec_bc_[1]**2)
+                    threshold = self.agent_list[agent_idx].visibility * 1.415 / 2 + a_other.r # 默认视线为正方形
+                    if distance <= threshold:
+                        map_deduced["agents"].append(a_i) # todo
+                        a_other.temp_idx = temp_idx
+                        map_objects.append(a_other)
+                        agent_self.to_another_agent.append(vec_ob)
+                        temp_idx += 1
+
+            # obs_map = np.zeros(( obs_weight , obs_height))
+            obs_map = np.zeros((obs_size,obs_size))
+            for obj in map_deduced["objects"]:
+                if (obj.type == "wall") or (obj.type == "cross"):
+                    raise NotImplementedError
+                    # points_pos = obj.cur_pos
+                    # obj.cur_pos_rotated = list()
+                    # for pos in points_pos:
+                    #     pos_x = pos[0]
+                    #     pos_y = pos[1]
+                    #     theta_obj = - theta
+                    #     pos_x_, pos_y_ = rotate2(pos_x, pos_y, theta_obj)
+                    #     obj.cur_pos_rotated.append([pos_x_, pos_y_])
+                elif obj.type == "arc":
+                    pos = obj.cur_pos
+                    obj.cur_pos_rotated = list()
+                    pos_x = pos[0][0]
+                    pos_y = pos[0][1]
+                    theta_obj = - theta
+                    pos_x_, pos_y_ = rotate2(pos_x, pos_y, theta_obj)
+                    obj.cur_pos_rotated.append([pos_x_, pos_y_])
+
+            for id, obj in enumerate(map_deduced["agents"]):
+                vec_ob = agent_self.to_another_agent[id]  # todo: 现在只有两个agent
+                theta_obj = - theta
+                x, y = rotate2(vec_ob[0], vec_ob[1], theta_obj)
+                agent_self.to_another_agent_rotated.append((x,y))
+
+            time_stamp = time.time()
+            #for component in map_objects:
+            for component in list(reversed(map_objects)):           #reverse to consider agent first, then wall
+                for i in range(obs_size):
+                    if self.VIEW_ITSELF:
+                        x = visibility - v_clear*i - v_clear/2
+                    else:
+                        x = agent.r + visibility - v_clear*i - v_clear / 2
+
+                    for j in range(obs_size):
+                        y = visibility/2 - v_clear*j - v_clear /2
+                        point = (x, y)
+
+                        if self.VIEW_ITSELF:
+                            #plot the agnet it self
+                            self_center = [0, 0]
+                            dis_to_itself = math.sqrt((point[0]-self_center[0])**2 + (point[1]-self_center[1])**2)
+                            if dis_to_itself <= self.agent_list[agent_idx].r:
+                                obs_map[i][j] = COLOR_TO_IDX[self.agent_list[agent_idx].color]
+
+
+                        if obs_map[i][j] > 0:           #when there is already object on this pixel
+                            continue
+                        else:
+                            if (component.type == "wall") or (component.type == "cross"):
+                                raise NotImplementedError
+                                # distance = abs(get_distance(component.cur_pos_rotated, point, component.length,
+                                #                             pixel=True))
+                                # if distance <= v_clear :  # 距离小于等于1个像素点长度
+                                #     obs_map[i][j] = COLOR_TO_IDX[component.color]
+                            elif component.type == "agent" or component.type == "ball":
+                                idx = component.temp_idx
+                                vec_bc_ = (x-agent_self.to_another_agent_rotated[idx][0], y-agent_self.to_another_agent_rotated[idx][1])
+                                distance = math.sqrt(vec_bc_[0] ** 2 + vec_bc_[1] ** 2)
+                                if distance <= component.r:
+                                    obs_map[i][j] = COLOR_TO_IDX[component.color]
+                            elif component.type == "arc":
+                                radius = component.R
+                                x_2center, y_2center = x-component.cur_pos_rotated[0][0], y-component.cur_pos_rotated[0][1]
+                                theta_pixel = theta
+                                pos_x_2center, pos_y_2center = rotate2(x_2center,y_2center,theta_pixel)
+                                angle = math.atan2(pos_y_2center, pos_x_2center)
+                                start_radian, end_radian = component.start_radian, component.end_radian
+                                if get_obs_check_radian(start_radian,end_radian,angle):
+                                # if (angle >= start_radian) and (angle <= end_radian):
+                                    vec = [x - component.cur_pos_rotated[0][0], y - component.cur_pos_rotated[0][1]]
+                                    distance = distance_2points(vec)
+                                    if (distance <= radius + v_clear) and (distance >= radius - v_clear):
+                                        obs_map[i][j] = COLOR_TO_IDX[component.color]
+
+
+            #now start drawing line
+            for obj in line_consider:
+                if obj.type == 'wall' or obj.type == 'cross':
+                    current_pos = obj.init_pos
+                    obj.rotate_pos = []
+                    for end_point in current_pos:
+                        # px = end_point[0]-agent_x
+                        # py = end_point[1]-agent_y
+                        #
+                        # nx = [math.cos(theta*math.pi/180), math.sin(theta*math.pi/180)]
+                        # ny = [-math.sin(theta*math.pi/180), math.cos(theta*math.pi/180)]
+                        # new_x = px*nx[0] + py*nx[1]
+                        # new_y = px*ny[0] + py*ny[1]
+                        # obj.rotate_pos.append([new_x, new_y])
+                        obj.rotate_pos.append(point_rotate([agent_x, agent_y], end_point, theta))
+                        # obj.rotate_pos.append(coordinate_rotate([agent_x, agent_y], -theta, end_point))
+
+                    # compute the intersection point
+                    intersect_p = []
+                    rotate_boundary = [[[0, -visibility / 2], [0, visibility / 2]],
+                                       [[0, visibility / 2], [visibility, visibility / 2]],
+                                       [[visibility, visibility / 2], [visibility, -visibility / 2]],
+                                       [[visibility, -visibility / 2], [0, -visibility / 2]]]
+
+                    # obs_rotate_boundary = []              #debug rotate boundard
+                    # for line in self.obs_boundary:
+                    #     rotate_bound = [point_rotate([agent_x, agent_y], i, theta) for i in line]
+                    #     obs_rotate_boundary.append(rotate_bound)
+
+                    # for line in self.obs_boundary:
+                    for line in rotate_boundary:
+                        _intersect_p = line_intersect(line1=line, line2=obj.rotate_pos, return_p=True)
+                        if _intersect_p:
+                            # intersect_p.append({"bound": line, "intersect point": intersect_p})
+                            intersect_p.append(_intersect_p)
+
+                    draw_line = []
+                    if len(intersect_p) == 0:
+                        # no intersection
+                        continue
+                    elif len(intersect_p) == 1:
+                        # one intersectoin, rotate it first
+                        # intersect_p1 = intersect_p[0]
+                        # c_p1 = [intersect_p1[0]-agent_x, intersect_p1[1]-agent_y]
+                        # rotate_intersect_p1 = [c_p1[0]*nx[0]+c_p1[1]*nx[1], c_p1[0]*ny[0]+c_p1[1]*ny[1]]
+                        # draw_line.append(rotate_intersect_p1)
+
+                        draw_line.append(intersect_p[0])
+
+                        if 0 < obj.rotate_pos[0][0] < visibility and abs(obj.rotate_pos[0][1]) < visibility / 2:
+                            draw_line.append(obj.rotate_pos[0])
+                        elif 0 < obj.rotate_pos[1][0] < visibility and abs(obj.rotate_pos[1][1]) < visibility / 2:
+                            draw_line.append(obj.rotate_pos[1])
+                        else:
+                            # only one point in the view
+                            pass
+                            # raise NotImplementedError
+
+                    elif len(intersect_p) == 2:
+
+                        draw_line.append(intersect_p[0])
+                        draw_line.append(intersect_p[1])
+
+                    obs_map = DDA_line(obs_map, draw_line, visibility, v_clear, value=COLOR_TO_IDX[obj.color])
+
+                else:
+                    raise NotImplementedError
+
+
+            obs_list.append(obs_map)
+            if self.print_log2:
+                print('agent {} get obs duration {}'.format(agent_idx, time.time() - time_stamp))
+        self.obs_list = obs_list
+
+
+        return obs_list
 
 
 
@@ -523,17 +823,17 @@ for _ in range(100):
         #    action = [[random.randint(-100,200),random.randint(-30, 30)]]#, [2,1]]#, [2,1]]#, [2,random.randint(0,2)]] #[[2,1], [2,1]] + [None for _ in range(4)]
         #action1 = [random.randint(-100, 200), random.randint(-30, 30)]
         #action2 = [random.randint(-100, 200), random.randint(-30, 30)]
-        # action = [random.uniform(0,1)*10, random.uniform(-30,30)]
+        # action = [[random.uniform(0,1)*10, random.uniform(-30,30)]]
         # action2 = [100+random.uniform(0,1)*15, 0]
         # action = [[200, 0] for _ in range(1)]
-        action = [[0,0]]
+        action = [[0,1]]
         # action = [action]
         _,_,done, _ = env.step(action)
 
         # print('agent v = ', env.agent_v)
         env.render()
         step += 1
-        time.sleep(0.01)
+        time.sleep(0.05)
         # if step < 60:
         #     time.sleep(0.05)
         # else:

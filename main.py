@@ -44,7 +44,7 @@ if __name__ == "__main__":
         #game = table_hockey(Gamemap)
         if args.map == 'running':
             game = Running(Gamemap)
-            agent_num = 3
+            agent_num = 2
         elif args.map == 'running-competition':
 
             map_id = random.randint(1,10)
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             if RENDER:
                 game.render()
 
-            # time.sleep(0.02)
+            time.sleep(0.02)
 
 
         print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
