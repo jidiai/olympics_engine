@@ -952,6 +952,11 @@ class OlympicsBase(object):
                         draw_line.append(intersect_p[0])
                         draw_line.append(intersect_p[1])
 
+                    elif len(intersect_p) == 3:
+                        continue
+                    else:
+                        raise ValueError
+
                     obs_map = DDA_line(obs_map, draw_line, visibility, v_clear,
                                        value=COLOR_TO_IDX[obj.color], view_back=view_back)
 
