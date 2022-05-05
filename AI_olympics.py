@@ -14,7 +14,7 @@ class AI_Olympics:
         self.random_selection = True
         self.minimap_mode = minimap
 
-        self.max_step = 300
+        self.max_step = 400
         self.vis = 200
         self.vis_clear = 5
 
