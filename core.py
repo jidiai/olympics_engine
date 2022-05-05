@@ -24,7 +24,7 @@ from olympics_engine.tools.settings import *
 class OlympicsBase(object):
     def __init__(self, map, seed=None):
         self.VIEW_ITSELF = True
-        self.VIEW_BACK = 0.
+        self.VIEW_BACK = 0.2
         self.seed = seed
         self.set_seed()
 
