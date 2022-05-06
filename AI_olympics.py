@@ -49,11 +49,11 @@ class AI_Olympics:
 
 
         print(f'Playing {self.game_pool[selected_game_idx]["name"]}')
-        if self.game_pool[selected_game_idx]['name'] == 'running-competition':
-            self.game_pool[selected_game_idx]['game'] = \
-                Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=200, vis_clear=5,
-                                              agent1_color = 'light red', agent2_color = 'blue')     #random sample a map
-            self.game_pool[selected_game_idx]['game'].max_step = self.max_step
+        # if self.game_pool[selected_game_idx]['name'] == 'running-competition':
+        #     self.game_pool[selected_game_idx]['game'] = \
+        #         Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=200, vis_clear=5,
+        #                                       agent1_color = 'light red', agent2_color = 'blue')     #random sample a map
+        #     self.game_pool[selected_game_idx]['game'].max_step = self.max_step
 
         self.current_game = self.game_pool[selected_game_idx]['game']
         self.game_score = [0,0]
