@@ -24,7 +24,7 @@ from olympics_engine.tools.settings import *
 class OlympicsBase(object):
     def __init__(self, map, seed=None):
         self.VIEW_ITSELF = True
-        self.VIEW_BACK = 0.
+        self.VIEW_BACK = 0.2
         self.seed = seed
         self.set_seed()
 
@@ -952,10 +952,10 @@ class OlympicsBase(object):
                         draw_line.append(intersect_p[0])
                         draw_line.append(intersect_p[1])
 
-                    elif len(intersect_p) == 3:
+                    elif len(intersect_p) == 3:     #if line aligns with boundary
                         continue
                     else:
-                        raise ValueError
+                        raise ValueError('ERROR: multiple intersection points in DDA')
 
                     obs_map = DDA_line(obs_map, draw_line, visibility, v_clear,
                                        value=COLOR_TO_IDX[obj.color], view_back=view_back)

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 import math
+import random
 
 class football(OlympicsBase):
     def __init__(self, map, minimap=False):
@@ -15,9 +16,9 @@ class football(OlympicsBase):
         self.faster = map['env_cfg']['faster']
         self.original_gamma = map['env_cfg']['gamma']
 
-        for wall in map['objects']:
-            if wall.type == 'wall':
-                wall.color='white'
+        # for wall in map['objects']:
+        #     if wall.type == 'wall':
+        #         wall.color='white'
 
         super(football, self).__init__(map)
 
@@ -39,6 +40,7 @@ class football(OlympicsBase):
 
         self.draw_obs = True
         self.show_traj = False
+        self.beauty_render = False
 
     def check_overlap(self):
         pass
@@ -57,12 +59,21 @@ class football(OlympicsBase):
         self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (5, 350))
         self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (650, 350))
 
+        self.ball_pos_init()
+
         init_obs = self.get_obs()
         if self.minimap_mode:
             self._build_minimap()
 
         output_init_obs = self._build_from_raw_obs(init_obs)
         return output_init_obs
+
+    def ball_pos_init(self):
+        y_min, y_max = 300, 500
+        for index, item in enumerate(self.agent_list):
+            if item.type == 'ball':
+                random_y = random.uniform(y_min, y_max)
+                self.agent_init_pos[index][1] = random_y
 
     def check_action(self, action_list):
         action = []
@@ -158,10 +169,10 @@ class football(OlympicsBase):
                 ball_end_pos = self.agent_pos[agent_idx]
 
         if ball_end_pos is not None and ball_end_pos[0] < 400:
-            return [0., 100]
+            return [0., 1]
 
         elif ball_end_pos is not None and ball_end_pos[0] > 400:
-            return [100., 0]
+            return [1., 0]
         else:
             return [0. ,0.]
 
@@ -207,29 +218,32 @@ class football(OlympicsBase):
             if not self.display_mode:
                 self.viewer.set_mode()
                 self.display_mode=True
-
-                self._load_image()
+                if self.beauty_render:
+                    self._load_image()
 
 
 
             self.viewer.draw_background()
-            self._draw_playground()
-            self._draw_energy(self.agent_list)
-            for i in self.viewer.screen_list:
-                self.viewer.background.blit(i['screen'], i['pos'])
+            if self.beauty_render:
+                self._draw_playground()
+                self._draw_energy(self.agent_list)
+                for i in self.viewer.screen_list:
+                    self.viewer.background.blit(i['screen'], i['pos'])
 
             for w in self.map['objects']:
                 self.viewer.draw_map(w)
 
-            # self.viewer.draw_ball(self.agent_pos, self.agent_list)
-            self._draw_image(self.agent_pos, self.agent_list, self.agent_theta, self.obs_boundary)
+            if self.beauty_render:
+                self._draw_image(self.agent_pos, self.agent_list, self.agent_theta, self.obs_boundary)
+            else:
+                self.viewer.draw_ball(self.agent_pos, self.agent_list)
 
-            # if self.draw_obs:
-            #     self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+            if self.draw_obs:
+                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=0)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=0 if self.beauty_render else 5)
 
         if self.show_traj:
             self.get_trajectory()

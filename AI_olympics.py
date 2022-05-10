@@ -11,15 +11,15 @@ import random
 class AI_Olympics:
     def __init__(self, random_selection, minimap):
 
-        self.random_selection = random_selection
+        self.random_selection = True
         self.minimap_mode = minimap
 
-        self.max_step = 300
+        self.max_step = 400
         self.vis = 200
         self.vis_clear = 5
 
         running_Gamemap = create_scenario("running-competition")
-        self.running_game = Running_competition(running_Gamemap, vis = self.vis, vis_clear=self.vis_clear)
+        self.running_game = Running_competition(running_Gamemap, vis = 200, vis_clear=5, agent1_color = 'light red', agent2_color='blue')
 
         self.tablehockey_game = table_hockey(create_scenario("table-hockey"))
         self.football_game = football(create_scenario('football'))
@@ -39,53 +39,78 @@ class AI_Olympics:
     def reset(self):
 
         self.done = False
+        selected_game_idx_pool = list(range(len(self.game_pool)))
         if self.random_selection:
-            selected_game_idx = random.randint(0, len(self.game_pool)-1)
-        else:
-            selected_game_idx = 0
-            self.current_game_idx = 0
+            random.shuffle(selected_game_idx_pool)            #random game playing sequence
+
+        self.selected_game_idx_pool = selected_game_idx_pool                           #fix game playing sequence
+        self.current_game_count = 0
+        selected_game_idx = self.selected_game_idx_pool[self.current_game_count]
+
 
         print(f'Playing {self.game_pool[selected_game_idx]["name"]}')
-        if self.game_pool[selected_game_idx]['name'] == 'running-competition':
-            self.game_pool[selected_game_idx]['game'] = \
-                Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=self.vis, vis_clear=self.vis_clear)     #random sample a map
-            self.game_pool[selected_game_idx]['game'].max_step = self.max_step
+        # if self.game_pool[selected_game_idx]['name'] == 'running-competition':
+        #     self.game_pool[selected_game_idx]['game'] = \
+        #         Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=200, vis_clear=5,
+        #                                       agent1_color = 'light red', agent2_color = 'blue')     #random sample a map
+        #     self.game_pool[selected_game_idx]['game'].max_step = self.max_step
 
         self.current_game = self.game_pool[selected_game_idx]['game']
         self.game_score = [0,0]
 
         init_obs = self.current_game.reset()
+        if self.current_game.game_name == 'running-competition':
+            init_obs = [{'agent_obs': init_obs[i], 'id': f'team_{i}'} for i in [0,1]]
+        for i in init_obs:
+            i['game_mode'] = 'NEW GAME'
+
+        for i,j in enumerate(init_obs):
+            j['energy'] = self.current_game.agent_list[i].energy
+
         return init_obs
 
     def step(self, action_list):
 
         obs, reward, done, _ = self.current_game.step(action_list)
 
+        if self.current_game.game_name == 'running-competition':
+            obs = [{'agent_obs': obs[i], 'id': f'team_{i}'} for i in [0,1]]
+        for i in obs:
+            i['game_mode'] = ''
+
+        for i,j in enumerate(obs):
+            j['energy'] = self.current_game.agent_list[i].energy
+
         if done:
             winner = self.current_game.check_win()
             if winner != '-1':
                 self.game_score[int(winner)] += 1
 
-            if self.random_selection:
-                    self.done = True
+            if self.current_game_count == len(self.game_pool)-1:
+                self.done = True
             else:
-                if self.current_game_idx == len(self.game_pool)-1:
-                    self.done = True
-                else:
-                    self.current_game_idx += 1
-                    self.current_game = self.game_pool[self.current_game_idx]['game']
-                    print(f'Playing {self.game_pool[self.current_game_idx]["name"]}')
-                    obs = self.current_game.reset()
+                # self.current_game_idx += 1
+                self.current_game_count += 1
+                self.current_game_idx = self.selected_game_idx_pool[self.current_game_count]
 
+                self.current_game = self.game_pool[self.current_game_idx]['game']
+                print(f'Playing {self.game_pool[self.current_game_idx]["name"]}')
+                obs = self.current_game.reset()
+                if self.current_game.game_name == 'running-competition':
+                    obs = [{'agent_obs': obs[i], 'id': f'team_{i}'} for i in [0,1]]
+                for i in obs:
+                    i['game_mode'] = 'NEW GAME'
+                for i,j in enumerate(obs):
+                    j['energy'] = self.current_game.agent_list[i].energy
 
         if self.done:
             print('game score = ', self.game_score)
             if self.game_score[0] > self.game_score[1]:
                 self.final_reward = [100, 0]
-                print('Results: team purple win!')
+                print('Results: team 0 win!')
             elif self.game_score[1] > self.game_score[0]:
                 self.final_reward = [0, 100]
-                print('Results: team green win!')
+                print('Results: team 1 win!')
             else:
                 self.final_reward = [0,0]
                 print('Results: Draw!')

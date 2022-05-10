@@ -16,15 +16,24 @@ maps_path = os.path.join(current_path, "running_competition_maps/maps.json")
 
 
 class Running_competition(OlympicsBase):
-    def __init__(self, meta_map, map_id = None, seed = None, vis = None, vis_clear=None):
+    def __init__(self, meta_map, map_id = None, seed = None, vis = None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
         # self.minimap_mode = map['obs_cfg'].get('minimap', False)
 
-        Gamemap = Running_competition.choose_a_map(idx = map_id)        #fixme(yan): penatration in some maps, need to check engine, vis
+        Gamemap, map_index = Running_competition.choose_a_map(idx = map_id)        #fixme(yan): penatration in some maps, need to check engine, vis
         if vis is not None:
             for a in Gamemap['agents']:
                 a.visibility = vis
                 a.visibility_clear = vis_clear
+                if a.color == 'purple':
+                    a.color = agent1_color
+                    a.original_color = agent1_color
+                elif a.color == 'green':
+                    a.color = agent2_color
+                    a.original_color = agent2_color
+
+
         self.meta_map = meta_map
+        self.map_index = map_index
 
         super(Running_competition, self).__init__(Gamemap, seed)
 
@@ -54,15 +63,15 @@ class Running_competition(OlympicsBase):
         # self.show_traj = True
 
     @staticmethod
-    def reset_map(meta_map, map_id, vis=None, vis_clear=None):
-        return Running_competition(meta_map, map_id, vis=vis, vis_clear = vis_clear)
+    def reset_map(meta_map, map_id, vis=None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
+        return Running_competition(meta_map, map_id, vis=vis, vis_clear = vis_clear, agent1_color=agent1_color, agent2_color=agent2_color)
 
     @staticmethod
     def choose_a_map(idx=None):
         if idx is None:
-            idx = random.randint(1,3)
+            idx = random.randint(1,4)
         MapStats = create_scenario("map"+str(idx), file_path=  maps_path)
-        return MapStats
+        return MapStats, idx
 
     def check_overlap(self):
         #todo
@@ -75,7 +84,7 @@ class Running_competition(OlympicsBase):
 
         for agent_idx in range(self.agent_num):
             if self.agent_list[agent_idx].finished:
-                agent_reward[agent_idx] = 100.
+                agent_reward[agent_idx] = 1.
 
         return agent_reward
 
