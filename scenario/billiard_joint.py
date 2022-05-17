@@ -45,7 +45,7 @@ class billiard_joint(OlympicsBase):
 
         self.max_n_hit = 3
 
-
+        self.cross_color = 'green'
         self.total_reward = 0
 
     def reset(self):
@@ -302,7 +302,7 @@ class billiard_joint(OlympicsBase):
         finals = []
         for object_idx in range(len(self.map['objects'])):
             object = self.map['objects'][object_idx]
-            if object.can_pass() and object.color == 'blue':
+            if object.can_pass() and object.color == self.cross_color:
                 #arc_pos = object.init_pos
                 finals.append(object)
 
@@ -322,7 +322,7 @@ class billiard_joint(OlympicsBase):
                             elif agent.color == self.agent2_color:
                                 self.white_ball_in[1] = True
 
-                        agent.color = 'blue'
+                        agent.color = self.cross_color
                         agent.finished = True
                         agent.alive = False
                         self.dead_agent_list.append(agent_idx)
