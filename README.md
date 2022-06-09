@@ -10,4 +10,16 @@ map that includes both rewarding and hazardous area, and potentially various obj
 explore.
 
 
-<img src=https://github.com/jidiai/olympics_engine/blob/main/assets/AI-Olympics.png>
+<img src=https://github.com/jidiai/olympics_engine/blob/main/olympics_engine/assets/AI-Olympics.png>
+
+
+## Installation
+
+To install the olympics_engine, clone the repository and use `pip install .`
+
+## Run a game
+
+```python
+python -m olympics_engine.main
+```
+
