@@ -8,3 +8,6 @@ represents a non-penetrable wall, a red line represents the awarding transferabl
 line represents a penalising obstacle. Assembling the elements together we can build up a specific
 map that includes both rewarding and hazardous area, and potentially various objectives for agent to
 explore.
+
+
+<img src=https://github.com/jidiai/olympics_engine/blob/main/assets/AI-Olympics.png>
