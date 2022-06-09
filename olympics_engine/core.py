@@ -7,7 +7,6 @@ import copy
 import time
 import numpy as np
 import random
-import matplotlib.pyplot as pyplot
 import sys
 
 from pathlib import Path

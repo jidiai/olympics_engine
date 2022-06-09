@@ -14,8 +14,6 @@ from scenario import Running, table_hockey, football, wrestling, billiard, \
 from AI_olympics import AI_Olympics
 
 import random
-import numpy as np
-import matplotlib.pyplot as plt
 import json
 
 

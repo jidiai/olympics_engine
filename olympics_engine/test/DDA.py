@@ -11,7 +11,6 @@ from objects import *
 from tools.func import *
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 
 gamemap = {'objects':[], 'agents':[]}
 
