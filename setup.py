@@ -13,7 +13,11 @@ setup(
                       'numpy',
                       'gym'
                       ],
-
+    extras_require={
+        "dev": [
+            "torch",
+        ],
+    },
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Science/Research',
