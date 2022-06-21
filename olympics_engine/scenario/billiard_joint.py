@@ -48,6 +48,8 @@ class billiard_joint(OlympicsBase):
         self.cross_color = 'green'
         self.total_reward = 0
 
+        self.game_name = 'billiard'
+
     def reset(self):
         self.agent_num = 0
         self.agent_list = []
@@ -62,17 +64,6 @@ class billiard_joint(OlympicsBase):
 
         self.generate_map(self.map)
         self.merge_map()
-
-        agent2idx = {}
-        for idx, agent in enumerate(self.agent_list):
-            if agent.type == 'agent':
-                agent2idx[f'agent_{idx}'] = idx
-            elif agent.type == 'ball':
-                agent2idx[f'ball_{idx-2}'] = idx
-            else:
-                raise NotImplementedError
-        self.agent2idx = agent2idx
-
 
         self.set_seed()
         self.init_state()
@@ -140,17 +131,12 @@ class billiard_joint(OlympicsBase):
             output_obs[1]['minimap'] = image
 
             # return [{"agent_obs": init_obs, "minimap":image}, {"agent_obs": np.zeros_like(init_obs)-1, "minimap":None}]
+
         return output_obs
         # return [init_obs, np.zeros_like(init_obs)-1]
 
     def check_overlap(self):
         pass
-
-    def _idx2agent(self, idx):
-        idx2agent = dict(zip(self.agent2idx.values(), self.agent2idx.keys()))
-        return idx2agent[idx]
-
-
 
     def check_action(self, action_list):
         action = []
@@ -222,48 +208,29 @@ class billiard_joint(OlympicsBase):
             self.agent_theta.append([init_obs])
             self.agent_record.append([random_init_pos_x, random_init_pos_y])
 
-            # if idx == 0:
-            self.agent2idx[f'agent_{idx}'] = len(self.agent_list)-1
+
 
 
 
     def step(self, actions_list):
 
-
-
         input_action = self.check_action(actions_list)
-
         self.stepPhysics(input_action, self.step_cnt)
-
         self.cross_detect(self.agent_pos)
-
         game_done = self.is_terminal()
-
-
-
         self.step_cnt += 1
-
-
         obs_next = self.get_obs()
 
         self.change_inner_state()
-
-
         # pre_ball_left = self.ball_left
         self.clear_agent()
-
-
         self.output_reward = self._build_from_raw_reward()
 
-
-        #check overlapping
-        #self.check_overlap()
 
         if not game_done:
             #reset white ball
             if np.logical_or(self.white_ball_in[0], self.white_ball_in[1]):
                 self.reset_cure_ball()
-
 
 
 
@@ -380,11 +347,6 @@ class billiard_joint(OlympicsBase):
             del self.obs_boundary[idx-index_add_on]
             del self.obs_list[idx-index_add_on]
 
-            self.agent2idx[self._idx2agent(idx-index_add_on)] = None
-            for name, id in self.agent2idx.items():
-                if id is not None and id > (idx-index_add_on):
-                    self.agent2idx[name] = id-1
-
             index_add_on += 1
         self.agent_num -= len(self.dead_agent_list)
         self.dead_agent_list = []
@@ -436,6 +398,14 @@ class billiard_joint(OlympicsBase):
 
         return reward
 
+    def check_win(self):
+        total_reward = self.total_score
+        if total_reward[0]>total_reward[1]:
+            return '0'
+        elif total_reward[0]<total_reward[1]:
+            return '1'
+        else:
+            return '-1'
 
 
     def get_round_reward(self):
