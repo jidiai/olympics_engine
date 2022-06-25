@@ -70,7 +70,10 @@ class AI_Olympics:
             i['game_mode'] = 'NEW GAME'
 
         for i,j in enumerate(init_obs):
-            j['energy'] = self.current_game.agent_list[i].energy
+            if 'curling' in self.current_game.game_name:
+                j['energy'] = 1000
+            else:
+                j['energy'] = self.current_game.agent_list[i].energy
 
         return init_obs
 

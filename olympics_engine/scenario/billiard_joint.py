@@ -200,6 +200,7 @@ class billiard_joint(OlympicsBase):
 
             new_boundary = self.get_obs_boundaray([random_init_pos_x, random_init_pos_y], 15, self.vis)
             self.obs_boundary_init.append(new_boundary)     #fixme: might has problem
+            self.obs_boundary.append(new_boundary)
             self.agent_num += 1
             self.agent_pos.append([random_init_pos_x, random_init_pos_y])
             self.agent_v.append([0,0])
@@ -218,6 +219,11 @@ class billiard_joint(OlympicsBase):
         self.stepPhysics(input_action, self.step_cnt)
         self.cross_detect(self.agent_pos)
         game_done = self.is_terminal()
+        if not game_done:
+            #reset white ball
+            if np.logical_or(self.white_ball_in[0], self.white_ball_in[1]):
+                self.reset_cure_ball()
+
         self.step_cnt += 1
         obs_next = self.get_obs()
 
@@ -227,10 +233,10 @@ class billiard_joint(OlympicsBase):
         self.output_reward = self._build_from_raw_reward()
 
 
-        if not game_done:
-            #reset white ball
-            if np.logical_or(self.white_ball_in[0], self.white_ball_in[1]):
-                self.reset_cure_ball()
+        # if not game_done:
+        #     #reset white ball
+        #     if np.logical_or(self.white_ball_in[0], self.white_ball_in[1]):
+        #         self.reset_cure_ball()
 
 
 
@@ -477,7 +483,9 @@ class billiard_joint(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
+                obs_list, agent_list = self.align_obs()
+                self.viewer.draw_view(obs_list, agent_list, leftmost_x=500, upmost_y=10, gap=100)
+                # self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
 
         if self.show_traj:
             self.get_trajectory()
@@ -506,6 +514,22 @@ class billiard_joint(OlympicsBase):
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
+
+    def align_obs(self):
+        obs_list = [0,0] #self.obs_list
+        agent_list = [0,0] #self.agent_list
+
+        for i,j in enumerate(self.agent_list):
+            if j.type == 'agent':
+                if j.color == self.agent1_color:
+                    idx = 0
+                elif j.color == self.agent2_color:
+                    idx = 1
+
+                obs_list[idx] = self.obs_list[i]
+                agent_list[idx] = self.agent_list[i]
+
+        return obs_list, agent_list
 
 
     def draw_table(self):
