@@ -65,6 +65,18 @@ class billiard_joint(OlympicsBase):
         self.generate_map(self.map)
         self.merge_map()
 
+        agent2idx = {}
+        for idx, agent in enumerate(self.agent_list):
+            if agent.type == 'agent':
+                agent2idx[f'agent_{idx}'] = idx
+            elif agent.type == 'ball':
+                agent2idx[f'ball_{idx-2}'] = idx
+            else:
+                raise NotImplementedError
+        self.agent2idx = agent2idx
+
+
+
         self.set_seed()
         self.init_state()
         self.step_cnt = 1
@@ -138,6 +150,10 @@ class billiard_joint(OlympicsBase):
     def check_overlap(self):
         pass
 
+    def _idx2agent(self, idx):
+        idx2agent = dict(zip(self.agent2idx.values(), self.agent2idx.keys()))
+        return idx2agent[idx]
+
     def check_action(self, action_list):
         action = []
 
@@ -209,6 +225,7 @@ class billiard_joint(OlympicsBase):
             self.agent_theta.append([init_obs])
             self.agent_record.append([random_init_pos_x, random_init_pos_y])
 
+            self.agent2idx[f'agent_{idx}'] = len(self.agent_list)-1
 
 
 
@@ -353,6 +370,11 @@ class billiard_joint(OlympicsBase):
             del self.obs_boundary[idx-index_add_on]
             del self.obs_list[idx-index_add_on]
 
+            # self.agent2idx[self._idx2agent(idx-index_add_on)] = None
+            for name, id in self.agent2idx.items():
+                if id is not None and id > (idx-index_add_on):
+                    self.agent2idx[name] = id-1
+
             index_add_on += 1
         self.agent_num -= len(self.dead_agent_list)
         self.dead_agent_list = []
@@ -433,7 +455,7 @@ class billiard_joint(OlympicsBase):
         #step_reward = self.get_reward()
         # round_reawrd = self.get_round_reward()      #move it to if not done?
         return step_reward
-        _output_reward = {}
+        # _output_reward = {}
         # _output_reward[f"team_{self.current_team}"] = {"step_reward": step_reward, "round_reward": round_reawrd}
         # _output_reward[f"team_{1-self.current_team}"] = None
         # self.team_score[self.current_team] += round_reawrd['total'] if round_reawrd is not None else 0
