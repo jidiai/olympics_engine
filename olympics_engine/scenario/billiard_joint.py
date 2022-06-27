@@ -359,6 +359,7 @@ class billiard_joint(OlympicsBase):
                     self.ball_left[1] -= 1
                     self.score[1] += 1
                     # self.green_ball_left -= 1
+                self.agent2idx[self._idx2agent(idx-index_add_on)] = None
             #     pass
             # else:
             del self.agent_list[idx-index_add_on]
