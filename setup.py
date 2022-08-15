@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='olympics_engine',
@@ -8,7 +8,9 @@ setup(
     author='Yan Song',
     author_email='yan.song@ia.ac.cn',
     license='MIT',
-    packages=['olympics_engine'],
+    packages=find_packages(),
+    package_data={'':['*.json']},
+
     install_requires=['pygame==2.0.2',
                       'numpy',
                       'gym'
