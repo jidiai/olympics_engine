@@ -23,19 +23,19 @@ def distance_2points(vec):
     return math.sqrt(vec[0] ** 2 + vec[1] ** 2)
 
 
-def rotate(x, y, theta):
-    """
-    坐标轴转，物体不转
-    formula reference: https://www.cnblogs.com/jiahenhe2/p/10135235.html
-    """
-    x_n = math.cos(theta * math.pi / 180) * x + math.sin(theta * math.pi / 180) * y
-    y_n = -math.sin(theta * math.pi / 180) * x + math.cos(theta * math.pi / 180) * y
-    return x_n, y_n
+# def rotate(x, y, theta):
+#     """
+#     坐标轴转，物体不转
+#     formula reference: https://www.cnblogs.com/jiahenhe2/p/10135235.html
+#     """
+#     x_n = math.cos(theta * math.pi / 180) * x + math.sin(theta * math.pi / 180) * y
+#     y_n = -math.sin(theta * math.pi / 180) * x + math.cos(theta * math.pi / 180) * y
+#     return x_n, y_n
 
 
 def rotate2(x, y, theta):
     """
-    坐标轴不转，物体转; 坐标点旋转后的点坐标, 逆时针旋转theta
+    the axis rotate anti-clockwise at angle theta and the object stay still
     """
     x_n = math.cos(theta * math.pi / 180) * x + math.sin(theta * math.pi / 180) * y
     y_n = -math.sin(theta * math.pi / 180) * x + math.cos(theta * math.pi / 180) * y
