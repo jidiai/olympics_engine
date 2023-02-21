@@ -11,11 +11,11 @@ import random
 def point2point(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
-class billiard_joint(OlympicsBase):
+class billiard_competition(OlympicsBase):
     def __init__(self, map):
         self.minimap_mode = map['obs_cfg']['minimap']
 
-        super(billiard_joint, self).__init__(map)
+        super(billiard_competition, self).__init__(map)
 
         self.tau = map['env_cfg']['tau']
         self.gamma = map['env_cfg']['gamma']
@@ -535,7 +535,7 @@ class billiard_joint(OlympicsBase):
         if self.draw_obs:
             if len(self.obs_list) > 0:
                 obs_list, agent_list = self.align_obs()
-                self.viewer.draw_view(obs_list, agent_list, leftmost_x=500, upmost_y=10, gap=100)
+                self.viewer.draw_view(obs_list, agent_list, leftmost_x=100, upmost_y=650, gap=300)
                 # self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
 
         if self.show_traj:

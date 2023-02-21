@@ -9,7 +9,7 @@ from olympics_engine.agent import *
 import time
 
 from scenario import Running, table_hockey, football, wrestling, billiard, \
-    curling, billiard_joint, curling_long, curling_competition, Running_competition
+    curling, billiard_joint, curling_long, curling_competition, Running_competition, billiard_competition
 
 from AI_olympics import AI_Olympics
 
@@ -31,7 +31,7 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="all", type= str,
+    parser.add_argument('--map', default="billiard-competition", type= str,
                         help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
@@ -67,6 +67,10 @@ if __name__ == "__main__":
         elif args.map == 'billiard':
             game = billiard(Gamemap)
             agent_num = 2
+        elif args.map == 'billiard-competition':
+            game = billiard_competition(Gamemap)
+            agent_num = 2
+
         elif args.map == 'curling':
             game = curling(Gamemap)
             agent_num = 2
@@ -111,7 +115,8 @@ if __name__ == "__main__":
             #action2 = [100,0] #rand_agent.act(obs)
             if agent_num == 2:
                 action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
-                # action1 = [100,1]
+                # action1 = [50,0.1]
+                # action2 = [100,-0.2]
 
                 # action1 =[50,1]
                 # action2 = [50,-1]
@@ -136,10 +141,10 @@ if __name__ == "__main__":
             if RENDER:
                 game.render()
 
-            # time.sleep(0.05)
-
-
-        print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
+        duration_t = time.time() - time_epi_s
+        print("episode duration: ", duration_t,
+              "step: ", step,
+              "time-per-step:",(duration_t)/step)
         # if args.map == 'billiard':
         #     print('reward =', game.total_reward)
         # else:
