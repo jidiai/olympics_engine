@@ -11,7 +11,7 @@ setup(
     packages=find_packages(),
     package_data={'':['*.json']},
 
-    install_requires=['pygame==2.0.2',
+    install_requires=['pygame>=2.0.2',
                       'numpy',
                       'gym'
                       ],
