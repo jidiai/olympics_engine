@@ -2581,5 +2581,97 @@
       "edge": 50,
       "init_obs": [90]
     }
+  },
+  "seeks":{
+    "wall": {
+      "num": 4,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            [
+              50,
+              50
+            ],
+            [
+              500,
+              50
+            ]
+          ],
+          "color": "black"
+        },
+        "component2": {
+          "initial_position": [
+            [
+              50,
+              50
+            ],
+            [
+              50,
+              500
+            ]
+          ],
+          "color": "black"
+        },
+        "component3": {
+          "initial_position": [
+            [
+              50,
+              500
+            ],
+            [
+              500,
+              500
+            ]
+          ],
+          "color": "black"
+        },
+        "component4": {
+          "initial_position": [
+            [
+              500,
+              50
+            ],
+            [
+              500,
+              500
+            ]
+          ],
+          "color": "black"
+        }
+      }
+    },
+    "agent": {
+      "num": 2,
+      "objects": {
+        "component1": {
+          "initial_position": [
+            275,
+            150
+          ],
+          "mass": 1,
+          "radius": 20,
+          "color": "purple",
+          "vis": 200,
+          "vis_clear": 8
+        },
+        "component2": {
+          "initial_position": [
+            275,
+            400
+          ],
+          "mass": 1,
+          "radius": 20,
+          "color": "green",
+          "vis": 200,
+          "vis_clear": 8
+        }
+      }
+    },
+    "view": {
+      "width": 600,
+      "height": 600,
+      "edge": 50,
+      "init_obs": [90, -90]
+    }
   }
 }

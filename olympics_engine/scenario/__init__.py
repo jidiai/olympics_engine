@@ -9,3 +9,4 @@ from olympics_engine.scenario.billiard_joint import billiard_joint
 from olympics_engine.scenario.curling_long import curling_long
 from olympics_engine.scenario.curling_competition import curling_competition
 from olympics_engine.scenario.billiard_competition import billiard_competition
+from olympics_engine.scenario.seeks import Seeks
