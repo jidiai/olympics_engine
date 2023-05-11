@@ -9,7 +9,7 @@ from olympics_engine.agent import *
 import time
 
 from scenario import Running, table_hockey, football, wrestling, billiard, \
-    curling, billiard_joint, curling_long, curling_competition, Running_competition, billiard_competition
+    curling, billiard_joint, curling_long, curling_competition, Running_competition, billiard_competition, Seeks
 
 from AI_olympics import AI_Olympics
 
@@ -31,13 +31,13 @@ RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="billiard-competition", type= str,
-                        help = 'running/table-hockey/football/wrestling/billiard/curling/all')
+    parser.add_argument('--map', default="all", type= str,
+                        help = 'running/table-hockey/football/wrestling/billiard/curling/all/all_v2')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
 
     for i in range(1):
-        if args.map != 'all':
+        if 'all' not in args.map:
             Gamemap = create_scenario(args.map)
         #game = table_hockey(Gamemap)
         if args.map == 'running':
@@ -51,6 +51,9 @@ if __name__ == "__main__":
             game = Running_competition(meta_map=Gamemap,map_id=map_id)
             agent_num = 2
 
+        elif args.map == 'seeks':
+            game = Seeks(Gamemap)
+            agent_num=2
 
         elif args.map == 'table-hockey':
             game = table_hockey(Gamemap)
@@ -94,6 +97,10 @@ if __name__ == "__main__":
         elif args.map == 'all':
             game = AI_Olympics(random_selection = False, minimap=False)
             agent_num = 2
+
+        # elif args.map == 'all_v2':
+        #     game = AI_Olympics(random_selection=False, minimap=False, vis=300, vis_clear=5)
+        #     agent_num = 2
 
         agent = random_agent()
         rand_agent = random_agent()

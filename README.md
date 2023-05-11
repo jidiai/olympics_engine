@@ -12,6 +12,29 @@ explore.
 
 <img src=https://github.com/jidiai/olympics_engine/blob/main/olympics_engine/assets/AI-Olympics.png>
 
+## Navigation
+```
+|-- olympics_engine   
+	|-- env_wrapper                             // wrapper for Jidi evaluation (www.jidiai.cn)
+	|-- scenario		                    // detail scenario implementation
+	|	|-- running_competition_maps        // multiple running maps
+	|	|-- billiard_competition.py         // billiard scenario script
+	|   |-- curling_competition.py              // curling scenario script
+	|   |-- football.py                         // 1 vs 1 football script
+	|   |-- running_competition.py              // running scenario script
+	|   |-- table_hockey.py                     // table hockey scenario script
+	|   |-- wrestling.py                        // wrestling scenario script
+	|-- tools		                    // mathmatical toolbox
+	|-- train                                   // Training examples of some of the sub-scenarios (for reference only)
+	|-- utils               
+	|-- AI_olympics.py		            // An integrated scenarios containing six tasks
+	|-- core.py                                 // game engine script
+	|-- main.py                                 // run a game
+	|-- objects.py                              // objects in the game map
+	|-- scenario.json                           // scenario setting
+	|-- viewer.py                               // pygame render
+```
+
 
 ## Installation
 

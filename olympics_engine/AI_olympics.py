@@ -1,4 +1,4 @@
-from scenario import Running_competition, table_hockey, football, wrestling, curling_competition, billiard_joint
+from scenario import Running_competition, table_hockey, football, wrestling, curling_competition, billiard_joint, billiard_competition
 import sys
 from pathlib import Path
 base_path = str(Path(__file__).resolve().parent.parent)
@@ -9,23 +9,49 @@ import random
 
 
 class AI_Olympics:
-    def __init__(self, random_selection, minimap):
+    def __init__(self, random_selection, minimap, **kwargs):
 
         self.random_selection = True
         self.minimap_mode = minimap
 
         self.max_step = 400
-        self.vis = 200
-        self.vis_clear = 5
+        self.vis = kwargs.get('vis', 200)
+        self.vis_clear = kwargs.get('vis_clear', 5)
 
         running_Gamemap = create_scenario("running-competition")
-        self.running_game = Running_competition(running_Gamemap, vis = 200, vis_clear=5, agent1_color = 'light red', agent2_color='blue')
+        self.running_game = Running_competition(running_Gamemap, vis = self.vis, vis_clear=self.vis_clear, agent1_color = 'light red', agent2_color='blue')
 
-        self.tablehockey_game = table_hockey(create_scenario("table-hockey"))
-        self.football_game = football(create_scenario('football'))
-        self.wrestling_game = wrestling(create_scenario('wrestling'))
-        self.curling_game = curling_competition(create_scenario('curling-IJACA-competition'))
-        self.billiard_game = billiard_joint(create_scenario("billiard-joint"))
+        tablehockey_gamemap = create_scenario("table-hockey")
+        for agent in tablehockey_gamemap['agents']:
+            agent.visibility = self.vis
+            agent.visibility_clear = self.vis_clear
+        self.tablehockey_game = table_hockey(tablehockey_gamemap)
+
+        football_gamemap = create_scenario('football')
+        for agent in football_gamemap['agents']:
+            agent.visibility = self.vis
+            agent.visibility_clear = self.vis_clear
+        self.football_game = football(football_gamemap)
+
+        wrestling_gamemap = create_scenario('wrestling')
+        for agent in wrestling_gamemap['agents']:
+            agent.visibility = self.vis
+            agent.visibility_clear = self.vis_clear
+        self.wrestling_game = wrestling(wrestling_gamemap)
+
+        curling_gamemap = create_scenario('curling-IJACA-competition')
+        for agent in curling_gamemap['agents']:
+            agent.visibility = self.vis
+            agent.visibility_clear = self.vis_clear
+        curling_gamemap['env_cfg']['vis']=self.vis
+        curling_gamemap['env_cfg']['vis_clear'] = self.vis_clear
+        self.curling_game = curling_competition(curling_gamemap)
+
+        billiard_gamemap = create_scenario("billiard-competition")
+        for agent in billiard_gamemap['agents']:
+            agent.visibility = self.vis
+            agent.visibility_clear = self.vis_clear
+        self.billiard_game = billiard_competition(billiard_gamemap)
 
         self.running_game.max_step = self.max_step
         self.tablehockey_game.max_step = self.max_step
