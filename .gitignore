@@ -6,3 +6,4 @@ test/.pytest_cache/
 /train/models/
 */__pycache__/*
 */*/__pycache__/*
+docs/build
